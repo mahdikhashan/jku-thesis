@@ -28,5 +28,6 @@ questions:
 
 - what is the scope of this task, what is the definition of good enough or done? accessible user-interface, simple and straight forward for target user
   i can create a few personas
-- what could be the mvp?
-- what are the projects that i can get some inspirations from?
+- what could be the mvp? a simple wireframe after the parameters and context if defined, what could be a config, what could be user specific input,
+  what can be accessed from a context or tool, like list of events from a calendar
+- what are the projects that i can get some inspirations from? found some products, links in the issues
