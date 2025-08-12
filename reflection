@@ -12,7 +12,7 @@ questions:
 - is it a data model(ing) concept? no, its a representation
 - is it learnable or it is fixed and defined? i can research about it a bit
 - what does it mean, it is expressive?
-- what are similar concepts to it?
+- what are similar concepts to it? DSL, the next stage of the flow accept it, which is the solver, so it should be correct.
 
 what is the interface here?
 
