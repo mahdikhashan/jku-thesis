@@ -1,1 +1,33 @@
+I know the project has two parts, ULR, or user language representation and the interface.
+To my current understainding, these two are the input of the flow, to receive and accept the scenarios from the user side.
 
+what I know about ULR:
+
+- it probably defines the scope of the user inputs and characterestics
+- time keeping is one parameter of it
+- in practice, it could be based upon JSON or similar data representation
+
+questions:
+
+- is it a data model(ing) concept?
+- where in my knowledge base i can connect it to?
+- what are existing exerpeinces that i can transfer to it?
+- is it learnable or it is fixed and defined?
+- what does it mean, it is expressive?
+- what are similar concepts to it?
+
+what is the interface here?
+
+what i know:
+
+- it is the first place user interacts with the feature
+- it could be a web based user interface like chat interfaces 
+- it could has some suggestion or auto-complete features
+- it may accept user user input as text, or some other possible inputs,
+- it may have some links to other systems (like how agents have tools access)
+
+questions:
+
+- what is the scope of this task, what is the definition of good enough or done?
+- what could be the mvp?
+- what are the projects that i can get some inspirations from?
