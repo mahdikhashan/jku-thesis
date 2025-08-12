@@ -20,7 +20,7 @@ what i know:
 
 - it is the first place user interacts with the feature
 - it could be a web based user interface like chat interfaces 
-- it could has some suggestion or auto-complete features
+- it could have some suggestion or auto-complete features
 - it may accept user user input as text, or some other possible inputs,
 - it may have some links to other systems (like how agents have tools access)
 
