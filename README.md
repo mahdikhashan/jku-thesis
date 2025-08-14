@@ -1,1 +1,3 @@
 - paper collection link: https://www.researchrabbitapp.com/collection/public/XL24QVXY6Q
+- pr report: https://docs.google.com/document/d/1lyr8V8p_qzjxSr4jyclghPXsq2RFwo-w4I7NNNwuLN4/edit?usp=sharing
+- thesis: https://docs.google.com/document/d/1_rGQEFbuuDsOqPyrUTDIN3jnwRgRs4KPirKq5gg2l84/edit?usp=sharing
