@@ -1,0 +1,26 @@
+nohup: ignoring input
+[I 2026-05-12 19:03:57.677 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2026-05-12 19:03:57.681 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[I 2026-05-12 19:03:57.685 ServerApp] jupyterlab | extension was successfully linked.
+[I 2026-05-12 19:03:57.686 ServerApp] Writing Jupyter server cookie secret to /home/mahdikhashan/.local/share/jupyter/runtime/jupyter_cookie_secret
+[I 2026-05-12 19:03:57.981 ServerApp] notebook_shim | extension was successfully linked.
+[I 2026-05-12 19:03:57.995 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2026-05-12 19:03:57.997 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2026-05-12 19:03:57.998 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2026-05-12 19:03:58.000 LabApp] JupyterLab extension loaded from /home/mahdikhashan/miniconda3/envs/lm-eval-llama-3-2-1B-teacher/lib/python3.11/site-packages/jupyterlab
+[I 2026-05-12 19:03:58.000 LabApp] JupyterLab application directory is /home/mahdikhashan/miniconda3/envs/lm-eval-llama-3-2-1B-teacher/share/jupyter/lab
+[I 2026-05-12 19:03:58.000 LabApp] Extension Manager is 'pypi'.
+[I 2026-05-12 19:03:58.044 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2026-05-12 19:03:58.045 ServerApp] Serving notebooks from local directory: /home/mahdikhashan/jku-thesis/envs
+[I 2026-05-12 19:03:58.045 ServerApp] Jupyter Server 2.18.2 is running at:
+[I 2026-05-12 19:03:58.045 ServerApp] http://127.0.0.1:8888/lab?token=5eb53ee21f63e26254e9090802b8345d0cf254ba545ecda9
+[I 2026-05-12 19:03:58.045 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 2026-05-12 19:03:58.048 ServerApp] 
+    
+    To access the server, open this file in a browser:
+        file:///home/mahdikhashan/.local/share/jupyter/runtime/jpserver-2792-open.html
+    Or copy and paste one of these URLs:
+        http://127.0.0.1:8888/lab?token=5eb53ee21f63e26254e9090802b8345d0cf254ba545ecda9
+[I 2026-05-12 19:03:58.063 ServerApp] Skipped non-installed server(s): basedpyright, bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyrefly, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+[I 2026-05-12 19:04:09.891 ServerApp] 302 GET /?token=[secret] (@127.0.0.1) 0.59ms
+[W 2026-05-12 19:04:17.271 LabApp] Could not determine jupyterlab build status without nodejs
