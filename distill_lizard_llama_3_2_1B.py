@@ -237,7 +237,8 @@ class LizardAttention(nn.Module):
         out = self.o_proj(out.to(hidden_states.dtype))
 
         # Return tuple matching LlamaAttention signature
-        return out, None, None
+        # return out, None, None
+        return out, None
 
 
 # ============================================================
@@ -425,7 +426,8 @@ def stage1_distill():
             for i, layer in enumerate(student.model.layers):
                 x = teacher_inputs[i]
                 y_target = teacher_outputs[i]
-                y_pred, _, _ = layer.self_attn(x)
+                # y_pred, _, _ = layer.self_attn(x)
+                y_pred, _ = layer.self_attn(x)
                 layer_loss = F.mse_loss(y_pred.float(), y_target.float()) / n_layers
                 (layer_loss / GRAD_ACCUM).backward()
                 total_loss += layer_loss.item()
@@ -556,7 +558,7 @@ def stage2_finetune():
 def main():
     torch.manual_seed(SEED)
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
-    stage1_distill()
+    # stage1_distill()
     stage2_finetune()
     print("Done.")
 
