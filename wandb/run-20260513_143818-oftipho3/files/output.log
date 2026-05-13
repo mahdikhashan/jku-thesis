@@ -1,0 +1,16 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 2936.65it/s]
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 2883.85it/s]
+  trainable: 294,992  /  total: 1,236,109,392  (0.024%)
+  packed 4025 sequences of 2048 tokens (~8.2M total)
+  total optimizer steps: 1006  (warmup: 100)
+[stage1] epoch 0 step 25/1006 loss nan lr 2.50e-04
+Traceback (most recent call last):
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 553, in <module>
+    main()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 547, in main
+    stage1_distill()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 419, in stage1_distill
+    total_loss += layer_loss.item()
+                  ^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

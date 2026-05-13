@@ -1,0 +1,27 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 3018.30it/s]
+Traceback (most recent call last):
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 551, in <module>
+    main()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 545, in main
+    stage1_distill()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 351, in stage1_distill
+    teacher = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=DTYPE).to(DEVICE)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3650, in to
+    return super().to(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1384, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 965, in _apply
+    param_applied = fn(param)
+                    ^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1370, in convert
+    return t.to(
+           ^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 502.00 MiB. GPU 0 has a total capacity of 22.04 GiB of which 306.00 MiB is free. Process 2980 has 21.56 GiB memory in use. Including non-PyTorch memory, this process has 184.00 MiB memory in use. Of the allocated memory 0 bytes is allocated by PyTorch, and 0 bytes is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

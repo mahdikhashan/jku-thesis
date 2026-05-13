@@ -1,0 +1,1339 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 2936.03it/s]
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 2836.21it/s]
+  trainable: 294,992  /  total: 1,236,109,392  (0.024%)
+  packed 4025 sequences of 2048 tokens (~8.2M total)
+  total optimizer steps: 1006  (warmup: 100)
+[layer 0] GLA produced NaN/Inf. phi_q max: 1.22e+01, phi_k max: 5.75e+00, gate min: 0.5000
+[layer 1] GLA produced NaN/Inf. phi_q max: 4.56e+00, phi_k max: 8.25e+00, gate min: 0.5000
+[layer 2] GLA produced NaN/Inf. phi_q max: 5.28e+00, phi_k max: 7.28e+00, gate min: 0.5000
+[layer 3] GLA produced NaN/Inf. phi_q max: 4.47e+00, phi_k max: 9.50e+00, gate min: 0.5000
+[layer 4] GLA produced NaN/Inf. phi_q max: 4.69e+00, phi_k max: 8.38e+00, gate min: 0.5000
+[layer 5] GLA produced NaN/Inf. phi_q max: 6.03e+00, phi_k max: 1.49e+01, gate min: 0.5000
+[layer 6] GLA produced NaN/Inf. phi_q max: 4.25e+00, phi_k max: 1.02e+01, gate min: 0.5000
+[layer 7] GLA produced NaN/Inf. phi_q max: 4.53e+00, phi_k max: 1.20e+01, gate min: 0.5000
+[layer 8] GLA produced NaN/Inf. phi_q max: 5.44e+00, phi_k max: 1.09e+01, gate min: 0.5000
+[layer 9] GLA produced NaN/Inf. phi_q max: 6.31e+00, phi_k max: 1.95e+01, gate min: 0.5000
+[layer 10] GLA produced NaN/Inf. phi_q max: 5.25e+00, phi_k max: 1.14e+01, gate min: 0.5000
+[layer 11] GLA produced NaN/Inf. phi_q max: 4.88e+00, phi_k max: 1.75e+01, gate min: 0.5000
+[layer 12] GLA produced NaN/Inf. phi_q max: 5.94e+00, phi_k max: 9.94e+00, gate min: 0.5000
+[layer 13] GLA produced NaN/Inf. phi_q max: 5.03e+00, phi_k max: 7.28e+00, gate min: 0.5000
+[layer 14] GLA produced NaN/Inf. phi_q max: 5.41e+00, phi_k max: 1.22e+01, gate min: 0.5000
+[layer 15] GLA produced NaN/Inf. phi_q max: 5.09e+00, phi_k max: 6.62e+00, gate min: 0.5000
+[layer 0] GLA produced NaN/Inf. phi_q max: 1.22e+01, phi_k max: 5.75e+00, gate min: 0.5000
+[layer 1] GLA produced NaN/Inf. phi_q max: 4.22e+00, phi_k max: 7.06e+00, gate min: 0.5000
+[layer 2] GLA produced NaN/Inf. phi_q max: 5.84e+00, phi_k max: 7.62e+00, gate min: 0.5000
+[layer 3] GLA produced NaN/Inf. phi_q max: 4.53e+00, phi_k max: 8.75e+00, gate min: 0.5000
+[layer 4] GLA produced NaN/Inf. phi_q max: 4.59e+00, phi_k max: 8.50e+00, gate min: 0.5000
+[layer 5] GLA produced NaN/Inf. phi_q max: 6.69e+00, phi_k max: 9.50e+00, gate min: 0.5000
+[layer 6] GLA produced NaN/Inf. phi_q max: 4.25e+00, phi_k max: 1.56e+01, gate min: 0.5000
+[layer 7] GLA produced NaN/Inf. phi_q max: 4.47e+00, phi_k max: 1.20e+01, gate min: 0.5000
+[layer 8] GLA produced NaN/Inf. phi_q max: 5.25e+00, phi_k max: 9.94e+00, gate min: 0.5000
+[layer 9] GLA produced NaN/Inf. phi_q max: 6.28e+00, phi_k max: 2.66e+01, gate min: 0.5000
+[layer 10] GLA produced NaN/Inf. phi_q max: 5.50e+00, phi_k max: 9.62e+00, gate min: 0.5000
+[layer 11] GLA produced NaN/Inf. phi_q max: 4.34e+00, phi_k max: 1.02e+01, gate min: 0.5000
+[layer 12] GLA produced NaN/Inf. phi_q max: 4.81e+00, phi_k max: 8.75e+00, gate min: 0.5000
+[layer 13] GLA produced NaN/Inf. phi_q max: 5.16e+00, phi_k max: 7.62e+00, gate min: 0.5000
+[layer 14] GLA produced NaN/Inf. phi_q max: 5.97e+00, phi_k max: 1.08e+01, gate min: 0.5000
+[layer 15] GLA produced NaN/Inf. phi_q max: 5.38e+00, phi_k max: 6.56e+00, gate min: 0.5000
+[layer 0] GLA produced NaN/Inf. phi_q max: 1.22e+01, phi_k max: 5.75e+00, gate min: 0.5000
+[layer 1] GLA produced NaN/Inf. phi_q max: 4.69e+00, phi_k max: 6.94e+00, gate min: 0.5000
+[layer 2] GLA produced NaN/Inf. phi_q max: 5.16e+00, phi_k max: 6.69e+00, gate min: 0.5000
+[layer 3] GLA produced NaN/Inf. phi_q max: 4.62e+00, phi_k max: 1.02e+01, gate min: 0.5000
+[layer 4] GLA produced NaN/Inf. phi_q max: 4.78e+00, phi_k max: 8.25e+00, gate min: 0.5000
+[layer 5] GLA produced NaN/Inf. phi_q max: 5.81e+00, phi_k max: 9.81e+00, gate min: 0.5000
+[layer 6] GLA produced NaN/Inf. phi_q max: 4.66e+00, phi_k max: 1.38e+01, gate min: 0.5000
+[layer 7] GLA produced NaN/Inf. phi_q max: 4.34e+00, phi_k max: 9.94e+00, gate min: 0.5000
+[layer 8] GLA produced NaN/Inf. phi_q max: 5.09e+00, phi_k max: 1.04e+01, gate min: 0.5000
+[layer 9] GLA produced NaN/Inf. phi_q max: 5.97e+00, phi_k max: 1.82e+01, gate min: 0.5000
+[layer 10] GLA produced NaN/Inf. phi_q max: 5.56e+00, phi_k max: 9.06e+00, gate min: 0.5000
+[layer 11] GLA produced NaN/Inf. phi_q max: 4.31e+00, phi_k max: 1.06e+01, gate min: 0.5000
+[layer 12] GLA produced NaN/Inf. phi_q max: 4.56e+00, phi_k max: 8.25e+00, gate min: 0.5000
+[layer 13] GLA produced NaN/Inf. phi_q max: 5.94e+00, phi_k max: 1.06e+01, gate min: 0.5000
+[layer 14] GLA produced NaN/Inf. phi_q max: 6.41e+00, phi_k max: 8.75e+00, gate min: 0.5000
+[layer 15] GLA produced NaN/Inf. phi_q max: 5.41e+00, phi_k max: 6.22e+00, gate min: 0.5000
+[layer 0] GLA produced NaN/Inf. phi_q max: 1.22e+01, phi_k max: 5.84e+00, gate min: 0.5000
+[layer 1] GLA produced NaN/Inf. phi_q max: 5.16e+00, phi_k max: 7.50e+00, gate min: 0.5000
+[layer 2] GLA produced NaN/Inf. phi_q max: 5.09e+00, phi_k max: 6.88e+00, gate min: 0.5000
+[layer 3] GLA produced NaN/Inf. phi_q max: 4.81e+00, phi_k max: 1.09e+01, gate min: 0.5000
+[layer 4] GLA produced NaN/Inf. phi_q max: 4.66e+00, phi_k max: 9.50e+00, gate min: 0.5000
+[layer 5] GLA produced NaN/Inf. phi_q max: 5.50e+00, phi_k max: 9.62e+00, gate min: 0.5000
+[layer 6] GLA produced NaN/Inf. phi_q max: 4.66e+00, phi_k max: 1.22e+01, gate min: 0.5000
+[layer 7] GLA produced NaN/Inf. phi_q max: 4.34e+00, phi_k max: 1.69e+01, gate min: 0.5000
+[layer 8] GLA produced NaN/Inf. phi_q max: 5.19e+00, phi_k max: 8.94e+00, gate min: 0.5000
+[layer 9] GLA produced NaN/Inf. phi_q max: 6.62e+00, phi_k max: 2.14e+01, gate min: 0.5000
+[layer 10] GLA produced NaN/Inf. phi_q max: 6.72e+00, phi_k max: 1.08e+01, gate min: 0.5000
+[layer 11] GLA produced NaN/Inf. phi_q max: 4.41e+00, phi_k max: 9.94e+00, gate min: 0.5000
+[layer 12] GLA produced NaN/Inf. phi_q max: 4.78e+00, phi_k max: 8.12e+00, gate min: 0.5000
+[layer 13] GLA produced NaN/Inf. phi_q max: 5.25e+00, phi_k max: 8.94e+00, gate min: 0.5000
+[layer 14] GLA produced NaN/Inf. phi_q max: 6.62e+00, phi_k max: 9.81e+00, gate min: 0.5000
+[layer 15] GLA produced NaN/Inf. phi_q max: 5.25e+00, phi_k max: 6.41e+00, gate min: 0.5000
+[layer 0] GLA produced NaN/Inf. phi_q max: 1.22e+01, phi_k max: 6.06e+00, gate min: 0.5000
+[layer 1] GLA produced NaN/Inf. phi_q max: 4.44e+00, phi_k max: 6.94e+00, gate min: 0.5000
+[layer 2] GLA produced NaN/Inf. phi_q max: 5.28e+00, phi_k max: 6.53e+00, gate min: 0.5000
+[layer 3] GLA produced NaN/Inf. phi_q max: 4.56e+00, phi_k max: 9.06e+00, gate min: 0.5000
+[layer 4] GLA produced NaN/Inf. phi_q max: 4.78e+00, phi_k max: 8.12e+00, gate min: 0.5000
+[layer 5] GLA produced NaN/Inf. phi_q max: 6.22e+00, phi_k max: 9.31e+00, gate min: 0.5000
+[layer 6] GLA produced NaN/Inf. phi_q max: 5.19e+00, phi_k max: 1.12e+01, gate min: 0.5000
+[layer 7] GLA produced NaN/Inf. phi_q max: 4.94e+00, phi_k max: 1.18e+01, gate min: 0.5000
+[layer 8] GLA produced NaN/Inf. phi_q max: 6.47e+00, phi_k max: 1.04e+01, gate min: 0.5000
+[layer 9] GLA produced NaN/Inf. phi_q max: 6.38e+00, phi_k max: 2.31e+01, gate min: 0.5000
+[layer 10] GLA produced NaN/Inf. phi_q max: 5.16e+00, phi_k max: 9.19e+00, gate min: 0.5000
+[layer 11] GLA produced NaN/Inf. phi_q max: 4.44e+00, phi_k max: 1.02e+01, gate min: 0.5000
+[layer 12] GLA produced NaN/Inf. phi_q max: 4.47e+00, phi_k max: 8.38e+00, gate min: 0.5000
+[layer 13] GLA produced NaN/Inf. phi_q max: 5.41e+00, phi_k max: 8.00e+00, gate min: 0.5000
+[layer 14] GLA produced NaN/Inf. phi_q max: 6.22e+00, phi_k max: 9.31e+00, gate min: 0.5000
+[layer 15] GLA produced NaN/Inf. phi_q max: 5.38e+00, phi_k max: 6.47e+00, gate min: 0.5000
+[layer 0] GLA produced NaN/Inf. phi_q max: 1.22e+01, phi_k max: 5.75e+00, gate min: 0.5000
+[layer 1] GLA produced NaN/Inf. phi_q max: 4.69e+00, phi_k max: 6.53e+00, gate min: 0.5000
+[layer 2] GLA produced NaN/Inf. phi_q max: 5.16e+00, phi_k max: 7.38e+00, gate min: 0.5000
+[layer 3] GLA produced NaN/Inf. phi_q max: 4.81e+00, phi_k max: 9.62e+00, gate min: 0.5000
+[layer 4] GLA produced NaN/Inf. phi_q max: 4.62e+00, phi_k max: 8.12e+00, gate min: 0.5000
+[layer 5] GLA produced NaN/Inf. phi_q max: 5.44e+00, phi_k max: 9.81e+00, gate min: 0.5000
+[layer 6] GLA produced NaN/Inf. phi_q max: 4.44e+00, phi_k max: 1.12e+01, gate min: 0.5000
+[layer 7] GLA produced NaN/Inf. phi_q max: 4.56e+00, phi_k max: 1.32e+01, gate min: 0.5000
+[layer 8] GLA produced NaN/Inf. phi_q max: 5.28e+00, phi_k max: 1.28e+01, gate min: 0.5000
+[layer 9] GLA produced NaN/Inf. phi_q max: 6.06e+00, phi_k max: 2.28e+01, gate min: 0.5000
+[layer 10] GLA produced NaN/Inf. phi_q max: 5.75e+00, phi_k max: 9.62e+00, gate min: 0.5000
+[layer 11] GLA produced NaN/Inf. phi_q max: 4.19e+00, phi_k max: 1.01e+01, gate min: 0.5000
+[layer 12] GLA produced NaN/Inf. phi_q max: 4.38e+00, phi_k max: 7.75e+00, gate min: 0.5000
+[layer 13] GLA produced NaN/Inf. phi_q max: 5.62e+00, phi_k max: 7.75e+00, gate min: 0.5000
+[layer 14] GLA produced NaN/Inf. phi_q max: 6.12e+00, phi_k max: 8.50e+00, gate min: 0.5000
+[layer 15] GLA produced NaN/Inf. phi_q max: 5.12e+00, phi_k max: 7.50e+00, gate min: 0.5000
+[layer 0] GLA produced NaN/Inf. phi_q max: 1.22e+01, phi_k max: 6.06e+00, gate min: 0.5000
+[layer 1] GLA produced NaN/Inf. phi_q max: 4.41e+00, phi_k max: 6.84e+00, gate min: 0.5000
+[layer 2] GLA produced NaN/Inf. phi_q max: 5.09e+00, phi_k max: 6.84e+00, gate min: 0.5000
+[layer 3] GLA produced NaN/Inf. phi_q max: 4.66e+00, phi_k max: 1.02e+01, gate min: 0.5000
+[layer 4] GLA produced NaN/Inf. phi_q max: 4.66e+00, phi_k max: 8.38e+00, gate min: 0.5000
+[layer 5] GLA produced NaN/Inf. phi_q max: 5.38e+00, phi_k max: 9.62e+00, gate min: 0.5000
+[layer 6] GLA produced NaN/Inf. phi_q max: 4.28e+00, phi_k max: 1.26e+01, gate min: 0.5000
+[layer 7] GLA produced NaN/Inf. phi_q max: 4.62e+00, phi_k max: 1.12e+01, gate min: 0.5000
+[layer 8] GLA produced NaN/Inf. phi_q max: 5.16e+00, phi_k max: 9.19e+00, gate min: 0.5000
+[layer 9] GLA produced NaN/Inf. phi_q max: 6.41e+00, phi_k max: 2.31e+01, gate min: 0.5000
+[layer 10] GLA produced NaN/Inf. phi_q max: 5.03e+00, phi_k max: 8.94e+00, gate min: 0.5000
+[layer 11] GLA produced NaN/Inf. phi_q max: 4.47e+00, phi_k max: 1.47e+01, gate min: 0.5000
+[layer 12] GLA produced NaN/Inf. phi_q max: 4.44e+00, phi_k max: 8.25e+00, gate min: 0.5000
+[layer 13] GLA produced NaN/Inf. phi_q max: 5.53e+00, phi_k max: 9.94e+00, gate min: 0.5000
+[layer 14] GLA produced NaN/Inf. phi_q max: 6.28e+00, phi_k max: 9.31e+00, gate min: 0.5000
+[layer 15] GLA produced NaN/Inf. phi_q max: 5.19e+00, phi_k max: 6.12e+00, gate min: 0.5000
+[layer 0] GLA produced NaN/Inf. phi_q max: 1.22e+01, phi_k max: 5.75e+00, gate min: 0.5000
+[layer 1] GLA produced NaN/Inf. phi_q max: 4.59e+00, phi_k max: 7.50e+00, gate min: 0.5000
+[layer 2] GLA produced NaN/Inf. phi_q max: 5.38e+00, phi_k max: 7.09e+00, gate min: 0.5000
+[layer 3] GLA produced NaN/Inf. phi_q max: 5.56e+00, phi_k max: 9.19e+00, gate min: 0.5000
+[layer 4] GLA produced NaN/Inf. phi_q max: 5.00e+00, phi_k max: 9.06e+00, gate min: 0.5000
+[layer 5] GLA produced NaN/Inf. phi_q max: 6.28e+00, phi_k max: 8.94e+00, gate min: 0.5000
+[layer 6] GLA produced NaN/Inf. phi_q max: 4.56e+00, phi_k max: 1.16e+01, gate min: 0.5000
+[layer 7] GLA produced NaN/Inf. phi_q max: 4.47e+00, phi_k max: 1.56e+01, gate min: 0.5000
+[layer 8] GLA produced NaN/Inf. phi_q max: 5.25e+00, phi_k max: 9.31e+00, gate min: 0.5000
+[layer 9] GLA produced NaN/Inf. phi_q max: 6.78e+00, phi_k max: 2.14e+01, gate min: 0.5000
+[layer 10] GLA produced NaN/Inf. phi_q max: 5.97e+00, phi_k max: 1.11e+01, gate min: 0.5000
+[layer 11] GLA produced NaN/Inf. phi_q max: 4.44e+00, phi_k max: 2.01e+01, gate min: 0.5000
+[layer 12] GLA produced NaN/Inf. phi_q max: 4.78e+00, phi_k max: 9.19e+00, gate min: 0.5000
+[layer 13] GLA produced NaN/Inf. phi_q max: 5.94e+00, phi_k max: 8.94e+00, gate min: 0.5000
+[layer 14] GLA produced NaN/Inf. phi_q max: 6.47e+00, phi_k max: 9.50e+00, gate min: 0.5000
+[layer 15] GLA produced NaN/Inf. phi_q max: 5.28e+00, phi_k max: 7.88e+00, gate min: 0.5000
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 1] AWA produced NaN/Inf
+[layer 2] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 2] AWA produced NaN/Inf
+[layer 3] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 3] AWA produced NaN/Inf
+[layer 4] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 4] AWA produced NaN/Inf
+[layer 5] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 5] AWA produced NaN/Inf
+[layer 6] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 6] AWA produced NaN/Inf
+[layer 7] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 7] AWA produced NaN/Inf
+[layer 8] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 8] AWA produced NaN/Inf
+[layer 9] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 9] AWA produced NaN/Inf
+[layer 10] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 10] AWA produced NaN/Inf
+[layer 11] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 11] AWA produced NaN/Inf
+[layer 12] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 12] AWA produced NaN/Inf
+[layer 13] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 13] AWA produced NaN/Inf
+[layer 14] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 14] AWA produced NaN/Inf
+[layer 15] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 15] AWA produced NaN/Inf
+[layer 0] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+[layer 0] AWA produced NaN/Inf
+[layer 1] GLA produced NaN/Inf. phi_q max: nan, phi_k max: nan, gate min: nan
+Traceback (most recent call last):
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 561, in <module>
+    main()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 555, in main
+    stage1_distill()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 424, in stage1_distill
+    y_pred, _, _ = layer.self_attn(x)
+                   ^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 229, in forward
+    print(f"[layer {self.layer_idx}] AWA produced NaN/Inf")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

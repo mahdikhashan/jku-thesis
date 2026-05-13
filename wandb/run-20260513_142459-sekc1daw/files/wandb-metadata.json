@@ -1,0 +1,40 @@
+{
+  "os":  "Linux-6.8.0-1045-gcp-x86_64-with-glibc2.35",
+  "python":  "CPython 3.11.15",
+  "startedAt":  "2026-05-13T14:24:59.328199Z",
+  "program":  "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py",
+  "codePath":  "distill_lizard_llama_3_2_1B.py",
+  "codePathLocal":  "distill_lizard_llama_3_2_1B.py",
+  "git":  {
+    "remote":  "https://mahdikhashan:@github.com/mahdikhashan/jku-thesis.git",
+    "commit":  "b6ff5c69daa84dcaee3af290b19d3b91364cf1b8"
+  },
+  "email":  "mahdikhashan1@gmail.com",
+  "root":  "/home/mahdikhashan/jku-thesis",
+  "host":  "whisper-l4-worker",
+  "executable":  "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/bin/python",
+  "cpu_count":  2,
+  "cpu_count_logical":  4,
+  "gpu":  "NVIDIA L4",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "103865303040",
+      "used":  "50750164992"
+    }
+  },
+  "memory":  {
+    "total":  "16767238144"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA L4",
+      "memoryTotal":  "24152899584",
+      "cudaCores":  7424,
+      "architecture":  "Ada",
+      "uuid":  "GPU-2986da35-5f8f-a964-27c3-bd5a587782a7"
+    }
+  ],
+  "cudaVersion":  "12.8",
+  "writerId":  "zptnaqnbx928p40kw7gf6zl4psbfaxdy"
+}

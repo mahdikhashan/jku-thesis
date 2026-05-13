@@ -1,0 +1,56 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 3045.31it/s]
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 2986.45it/s]
+[transformers] [1mLlamaForCausalLM LOAD REPORT[0m from: meta-llama/Llama-3.2-1B
+Key            | Status  |
+---------------+---------+-
+lm_head.weight | [31mMISSING[0m |
+
+Notes:
+- [31mMISSING:[0m	[3mthose params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m
+Traceback (most recent call last):
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 561, in <module>
+    main()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 555, in main
+    stage1_distill()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 365, in stage1_distill
+    student = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=DTYPE).to(DEVICE)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/models/auto/auto_factory.py", line 405, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 4246, in from_pretrained
+    loading_info = cls._finalize_model_loading(model, load_config, loading_info)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 4410, in _finalize_model_loading
+    model._initialize_missing_keys(load_config.is_quantized)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 4717, in _initialize_missing_keys
+    self.initialize_weights()
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 2466, in initialize_weights
+    smart_apply_fn(self._initialize_weights, self.is_remote_code())
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 2455, in smart_apply
+    smart_apply(child, child._initialize_weights, is_remote_code)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 2457, in smart_apply
+    smart_apply(child, fn, is_remote_code)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 2457, in smart_apply
+    smart_apply(child, fn, is_remote_code)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 2457, in smart_apply
+    smart_apply(child, fn, is_remote_code)
+  [Previous line repeated 1 more time]
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 2458, in smart_apply
+    fn(module, is_remote_code)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 2435, in _initialize_weights
+    self._init_weights(module)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_utils.py", line 2374, in _init_weights
+    init.normal_(module.weight.float(), mean=0.0, std=std)
+                 ^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

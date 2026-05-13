@@ -1,0 +1,70 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 3006.98it/s]
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 2916.94it/s]
+  trainable: 294,992  /  total: 1,236,109,392  (0.024%)
+README.md: 11.6kB [00:00, 9.13MB/s]
+alpaca_data_cleaned.json: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████| 44.3M/44.3M [00:01<00:00, 30.3MB/s]
+Generating train split: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████| 51760/51760 [00:00<00:00, 78505.45 examples/s]
+Map: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50000/50000 [00:04<00:00, 10472.08 examples/s]
+Map: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50000/50000 [00:11<00:00, 4389.88 examples/s]
+  packed 4025 sequences of 2048 tokens (~8.2M total)
+  total optimizer steps: 1006  (warmup: 100)
+Traceback (most recent call last):
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 551, in <module>
+    main()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 545, in main
+    stage1_distill()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 407, in stage1_distill
+    teacher(input_ids=input_ids, use_cache=False)
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/utils/generic.py", line 900, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 474, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/utils/generic.py", line 976, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/utils/output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 411, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/transformers/models/llama/modeling_llama.py", line 316, in forward
+    hidden_states, _ = self.self_attn(
+                       ^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1885, in _call_impl
+    return inner()
+           ^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1846, in inner
+    hook_result = hook(self, args, result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 371, in hook
+    teacher_inputs[idx] = inp[0].detach()
+                          ~~~^^^
+IndexError: tuple index out of range

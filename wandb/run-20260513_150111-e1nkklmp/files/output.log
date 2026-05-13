@@ -1,0 +1,109 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 2949.10it/s]
+Loading weights: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 146/146 [00:00<00:00, 2923.88it/s]
+  trainable: 294,992  /  total: 1,236,109,392  (0.024%)
+  packed 4025 sequences of 2048 tokens (~8.2M total)
+  total optimizer steps: 1006  (warmup: 100)
+[stage1] epoch 0 step 1/1006 loss 0.01883 lr 1.00e-05
+[stage1] epoch 0 step 2/1006 loss 0.01929 lr 2.00e-05
+[stage1] epoch 0 step 3/1006 loss 0.01895 lr 3.00e-05
+[stage1] epoch 0 step 4/1006 loss 0.01864 lr 4.00e-05
+[stage1] epoch 0 step 5/1006 loss 0.01922 lr 5.00e-05
+[stage1] epoch 0 step 6/1006 loss 0.01889 lr 6.00e-05
+[stage1] epoch 0 step 7/1006 loss 0.01961 lr 7.00e-05
+[stage1] epoch 0 step 8/1006 loss 0.01940 lr 8.00e-05
+[stage1] epoch 0 step 9/1006 loss 0.01887 lr 9.00e-05
+[stage1] epoch 0 step 10/1006 loss 0.01861 lr 1.00e-04
+[stage1] epoch 0 step 11/1006 loss 0.01859 lr 1.10e-04
+[stage1] epoch 0 step 12/1006 loss 0.01828 lr 1.20e-04
+[stage1] epoch 0 step 13/1006 loss 0.01814 lr 1.30e-04
+[stage1] epoch 0 step 14/1006 loss 0.01844 lr 1.40e-04
+[stage1] epoch 0 step 15/1006 loss 0.01814 lr 1.50e-04
+[stage1] epoch 0 step 16/1006 loss 0.01776 lr 1.60e-04
+[stage1] epoch 0 step 17/1006 loss 0.01831 lr 1.70e-04
+[stage1] epoch 0 step 18/1006 loss 0.01827 lr 1.80e-04
+[stage1] epoch 0 step 19/1006 loss 0.01734 lr 1.90e-04
+[stage1] epoch 0 step 20/1006 loss 0.01745 lr 2.00e-04
+[stage1] epoch 0 step 21/1006 loss 0.01691 lr 2.10e-04
+[stage1] epoch 0 step 22/1006 loss 0.01732 lr 2.20e-04
+[stage1] epoch 0 step 23/1006 loss 0.01733 lr 2.30e-04
+[stage1] epoch 0 step 24/1006 loss 0.01672 lr 2.40e-04
+[stage1] epoch 0 step 25/1006 loss 0.01663 lr 2.50e-04
+[stage1] epoch 0 step 26/1006 loss 0.01608 lr 2.60e-04
+[stage1] epoch 0 step 27/1006 loss 0.01634 lr 2.70e-04
+[stage1] epoch 0 step 28/1006 loss 0.01604 lr 2.80e-04
+[stage1] epoch 0 step 29/1006 loss 0.01581 lr 2.90e-04
+[stage1] epoch 0 step 30/1006 loss 0.01555 lr 3.00e-04
+[stage1] epoch 0 step 31/1006 loss 0.01584 lr 3.10e-04
+[stage1] epoch 0 step 32/1006 loss 0.01507 lr 3.20e-04
+[stage1] epoch 0 step 33/1006 loss 0.01531 lr 3.30e-04
+[stage1] epoch 0 step 34/1006 loss 0.01480 lr 3.40e-04
+[stage1] epoch 0 step 35/1006 loss 0.01460 lr 3.50e-04
+[stage1] epoch 0 step 36/1006 loss 0.01418 lr 3.60e-04
+[stage1] epoch 0 step 37/1006 loss 0.01397 lr 3.70e-04
+[stage1] epoch 0 step 38/1006 loss 0.01363 lr 3.80e-04
+[stage1] epoch 0 step 39/1006 loss 0.01427 lr 3.90e-04
+[stage1] epoch 0 step 40/1006 loss 0.01436 lr 4.00e-04
+[stage1] epoch 0 step 41/1006 loss 0.01395 lr 4.10e-04
+[stage1] epoch 0 step 42/1006 loss 0.01344 lr 4.20e-04
+[stage1] epoch 0 step 43/1006 loss 0.01337 lr 4.30e-04
+[stage1] epoch 0 step 44/1006 loss 0.01333 lr 4.40e-04
+[stage1] epoch 0 step 45/1006 loss 0.01391 lr 4.50e-04
+[stage1] epoch 0 step 46/1006 loss 0.01275 lr 4.60e-04
+[stage1] epoch 0 step 47/1006 loss 0.01287 lr 4.70e-04
+[stage1] epoch 0 step 48/1006 loss 0.01348 lr 4.80e-04
+[stage1] epoch 0 step 49/1006 loss 0.01304 lr 4.90e-04
+[stage1] epoch 0 step 50/1006 loss 0.01319 lr 5.00e-04
+[stage1] epoch 0 step 51/1006 loss 0.01339 lr 5.10e-04
+[stage1] epoch 0 step 52/1006 loss 0.01297 lr 5.20e-04
+[stage1] epoch 0 step 53/1006 loss 0.01305 lr 5.30e-04
+[stage1] epoch 0 step 54/1006 loss 0.01258 lr 5.40e-04
+[stage1] epoch 0 step 55/1006 loss 0.01248 lr 5.50e-04
+[stage1] epoch 0 step 56/1006 loss 0.01264 lr 5.60e-04
+[stage1] epoch 0 step 57/1006 loss 0.01216 lr 5.70e-04
+[stage1] epoch 0 step 58/1006 loss 0.01257 lr 5.80e-04
+[stage1] epoch 0 step 59/1006 loss 0.01231 lr 5.90e-04
+[stage1] epoch 0 step 60/1006 loss 0.01182 lr 6.00e-04
+[stage1] epoch 0 step 61/1006 loss 0.01210 lr 6.10e-04
+[stage1] epoch 0 step 62/1006 loss 0.01266 lr 6.20e-04
+[stage1] epoch 0 step 63/1006 loss 0.01227 lr 6.30e-04
+[stage1] epoch 0 step 64/1006 loss 0.01214 lr 6.40e-04
+[stage1] epoch 0 step 65/1006 loss 0.01236 lr 6.50e-04
+[stage1] epoch 0 step 66/1006 loss 0.01198 lr 6.60e-04
+[stage1] epoch 0 step 67/1006 loss 0.01240 lr 6.70e-04
+[stage1] epoch 0 step 68/1006 loss 0.01161 lr 6.80e-04
+[stage1] epoch 0 step 69/1006 loss 0.01175 lr 6.90e-04
+[stage1] epoch 0 step 70/1006 loss 0.01174 lr 7.00e-04
+[stage1] epoch 0 step 71/1006 loss 0.01131 lr 7.10e-04
+[stage1] epoch 0 step 72/1006 loss 0.01135 lr 7.20e-04
+[stage1] epoch 0 step 73/1006 loss 0.01170 lr 7.30e-04
+[stage1] epoch 0 step 74/1006 loss 0.01166 lr 7.40e-04
+[stage1] epoch 0 step 75/1006 loss 0.01083 lr 7.50e-04
+[stage1] epoch 0 step 76/1006 loss 0.01056 lr 7.60e-04
+[stage1] epoch 0 step 77/1006 loss 0.01130 lr 7.70e-04
+[stage1] epoch 0 step 78/1006 loss 0.01115 lr 7.80e-04
+[stage1] epoch 0 step 79/1006 loss 0.01096 lr 7.90e-04
+[stage1] epoch 0 step 80/1006 loss 0.01068 lr 8.00e-04
+[stage1] epoch 0 step 81/1006 loss 0.01077 lr 8.10e-04
+[stage1] epoch 0 step 82/1006 loss 0.01064 lr 8.20e-04
+[stage1] epoch 0 step 83/1006 loss 0.01013 lr 8.30e-04
+[stage1] epoch 0 step 84/1006 loss 0.01040 lr 8.40e-04
+[stage1] epoch 0 step 85/1006 loss 0.01019 lr 8.50e-04
+Traceback (most recent call last):
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 565, in <module>
+    main()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 559, in main
+    stage1_distill()
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 428, in stage1_distill
+    y_pred, _, _ = layer.self_attn(x)
+                   ^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py", line 232, in forward
+    if torch.isnan(y_awa).any() or torch.isinf(y_awa).any():
+                                   ^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

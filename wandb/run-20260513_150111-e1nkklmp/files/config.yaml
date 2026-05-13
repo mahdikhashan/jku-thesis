@@ -1,0 +1,81 @@
+_wandb:
+    value:
+        cli_version: 0.26.1
+        e:
+            4lxsudpb81d6wymdvmhywt49e1lfm8ok:
+                codePath: distill_lizard_llama_3_2_1B.py
+                codePathLocal: distill_lizard_llama_3_2_1B.py
+                cpu_count: 2
+                cpu_count_logical: 4
+                cudaVersion: "12.8"
+                disk:
+                    /:
+                        total: "103865303040"
+                        used: "55973613568"
+                email: mahdikhashan1@gmail.com
+                executable: /home/mahdikhashan/miniconda3/envs/distill_lizard_llama_3_2_1B/bin/python
+                git:
+                    commit: a5092feed55f5882552668c4cf4eed1c381c5a8e
+                    remote: https://mahdikhashan:@github.com/mahdikhashan/jku-thesis.git
+                gpu: NVIDIA L4
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 7424
+                      memoryTotal: "24152899584"
+                      name: NVIDIA L4
+                      uuid: GPU-2986da35-5f8f-a964-27c3-bd5a587782a7
+                host: whisper-l4-worker
+                memory:
+                    total: "16767238144"
+                os: Linux-6.8.0-1045-gcp-x86_64-with-glibc2.35
+                program: /home/mahdikhashan/jku-thesis/distill_lizard_llama_3_2_1B.py
+                python: CPython 3.11.15
+                root: /home/mahdikhashan/jku-thesis
+                startedAt: "2026-05-13T15:01:11.787681Z"
+                writerId: 4lxsudpb81d6wymdvmhywt49e1lfm8ok
+        m: []
+        python_version: 3.11.15
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 49
+                - 51
+                - 53
+                - 71
+                - 98
+            "2":
+                - 1
+                - 5
+                - 11
+                - 49
+                - 51
+                - 53
+                - 71
+                - 98
+            "3":
+                - 13
+                - 16
+            "4": 3.11.15
+            "5": 0.26.1
+            "6": 5.8.1
+            "12": 0.26.1
+            "13": linux-x86_64
+epochs:
+    value: 2
+feature_dim:
+    value: 128
+lr:
+    value: 0.001
+meta_tokens:
+    value: 4
+model:
+    value: meta-llama/Llama-3.2-1B
+seq_len:
+    value: 2048
+stage:
+    value: 1
+window_size:
+    value: 128
