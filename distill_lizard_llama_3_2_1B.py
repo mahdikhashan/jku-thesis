@@ -218,7 +218,15 @@ class LizardAttention(nn.Module):
         phi_k = self.hedgehog(k, self.phi_k)
         gate = torch.sigmoid(self.W_gamma(hidden_states)).squeeze(-1)  # (B, L)
         y_gla = self.gla_branch(phi_q, phi_k, v, gate)
+        if torch.isnan(y_gla).any() or torch.isinf(y_gla).any():
+            print(f"[layer {self.layer_idx}] GLA produced NaN/Inf. "
+                  f"phi_q max: {phi_q.abs().max().item():.2e}, "
+                  f"phi_k max: {phi_k.abs().max().item():.2e}, "
+                  f"gate min: {gate.min().item():.4f}")
+
         y_awa = self.awa_branch(q, k, v)
+        if torch.isnan(y_awa).any() or torch.isinf(y_awa).any():
+            print(f"[layer {self.layer_idx}] AWA produced NaN/Inf")
 
         out = y_gla + self.alpha_blend * y_awa
         out = out.transpose(1, 2).contiguous().view(B, L, -1)
