@@ -133,80 +133,60 @@ class LizardAttention(nn.Module):
         xw = proj(x)
         return torch.cat([torch.exp(xw), torch.exp(-xw)], dim=-1)
 
-    def gla_branch(
-        self,
-        phi_q: torch.Tensor,
-        phi_k: torch.Tensor,
-        v: torch.Tensor,
-        gate: torch.Tensor,
-    ) -> torch.Tensor:
-        """Stable parallel-form gated linear attention.
-
-        phi_q, phi_k : (B, H, L, F)
-        v            : (B, H, L, D)
-        gate         : (B, L) in (0, 1]   (sigmoid output, shared across heads)
-        returns      : (B, H, L, D)
-
-        Stability: instead of scaling Q by C and K by 1/C (which under/overflows),
-        we compute pairwise scaling exp(cum_log_gate[t] - cum_log_gate[s]) which
-        is always in (0, 1] for causal s <= t.
-        """
+    def gla_branch(self, phi_q, phi_k, v, gate):
+        """Chunked parallel-form GLA for memory-bounded training."""
         B, H, L, _ = phi_q.shape
+        CHUNK = 256  # tune: smaller = less memory, more overhead
+
         with torch.amp.autocast(device_type="cuda", enabled=False):
             phi_q_f = phi_q.float()
             phi_k_f = phi_k.float()
             v_f = v.float()
             gate_f = gate.float()
 
-            log_gate = torch.log(gate_f.clamp(min=1e-6))            # (B, L), <= 0
-            cum_log_gate = torch.cumsum(log_gate, dim=-1)            # (B, L)
-            # G[b, t, s] = exp(cum[t] - cum[s]) for causal s <= t
-            # G = torch.exp(cum_log_gate.unsqueeze(-1) - cum_log_gate.unsqueeze(-2))  # (B, L, L)
-            # causal = torch.tril(torch.ones(L, L, device=phi_q.device, dtype=torch.bool))
-            # G = G * causal.unsqueeze(0)                              # zero strict upper-tri
-            diff = cum_log_gate.unsqueeze(-1) - cum_log_gate.unsqueeze(-2)  # (B, L, L)
-            causal = torch.tril(torch.ones(L, L, device=phi_q.device, dtype=torch.bool))
-            diff = diff.masked_fill(~causal.unsqueeze(0), float('-inf'))
-            G = torch.exp(diff)  # safe: ≤ 1 on causal entries, 0 (from exp(-inf)) on masked entries
+            log_gate = torch.log(gate_f.clamp(min=1e-6))
+            cum_log_gate = torch.cumsum(log_gate, dim=-1)  # (B, L)
 
-            scores = torch.matmul(phi_q_f, phi_k_f.transpose(-2, -1))  # (B, H, L, L)
-            scores = scores * G.unsqueeze(1)                          # broadcast over heads
-            num = torch.matmul(scores, v_f)                           # (B, H, L, D)
-            denom = scores.sum(dim=-1, keepdim=True).clamp(min=1e-6)  # (B, H, L, 1)
-            out = num / denom
+            out_chunks = []
+            for start in range(0, L, CHUNK):
+                end = min(start + CHUNK, L)
+                # Query positions [start:end] attend to all key positions [0:end]
+                q_chunk = phi_q_f[:, :, start:end]
+                k_keys = phi_k_f[:, :, :end]
+                v_keys = v_f[:, :, :end]
+
+                cum_q = cum_log_gate[:, start:end].unsqueeze(-1)  # (B, chunk, 1)
+                cum_k = cum_log_gate[:, :end].unsqueeze(-2)  # (B, 1, end)
+                diff = cum_q - cum_k  # (B, chunk, end)
+
+                # Causal mask within the chunk
+                q_idx = torch.arange(start, end, device=phi_q.device)
+                k_idx = torch.arange(end, device=phi_q.device)
+                causal = q_idx.unsqueeze(-1) >= k_idx.unsqueeze(0)  # (chunk, end)
+                diff = diff.masked_fill(~causal.unsqueeze(0), float("-inf"))
+                G = torch.exp(diff)  # (B, chunk, end)
+
+                scores = torch.matmul(q_chunk, k_keys.transpose(-2, -1))  # (B, H, chunk, end)
+                scores = scores * G.unsqueeze(1)
+
+                num = torch.matmul(scores, v_keys)  # (B, H, chunk, D)
+                denom = scores.sum(dim=-1, keepdim=True).clamp(min=1e-6)
+                out_chunks.append(num / denom)
+
+            out = torch.cat(out_chunks, dim=2)
         return out.to(v.dtype)
 
-    def awa_branch(self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
-        """Sliding-window softmax attention with meta tokens in denominator only.
-
-        q, k, v: (B, H, L, D)
-        """
+    def awa_branch(self, q, k, v):
         B, H, L, D = q.shape
-        scale = 1.0 / math.sqrt(D)
-
         idx = torch.arange(L, device=q.device)
-        # Position i attends to j in [i - w + 1, i]
-        valid = (idx.unsqueeze(0) <= idx.unsqueeze(1)) & (
-            (idx.unsqueeze(1) - idx.unsqueeze(0)) < WINDOW_SIZE
+        mask = (idx.unsqueeze(0) <= idx.unsqueeze(1)) & \
+               ((idx.unsqueeze(1) - idx.unsqueeze(0)) < WINDOW_SIZE)
+        out = F.scaled_dot_product_attention(
+            q, k, v,
+            attn_mask=mask.unsqueeze(0).unsqueeze(0),
+            dropout_p=0.0,
         )
-
-        scores = torch.matmul(q, k.transpose(-2, -1)) * scale         # (B, H, L, L)
-        scores = scores.masked_fill(~valid, float("-inf"))
-
-        # Numerically stable softmax with extra denominator terms
-        max_scores = scores.max(dim=-1, keepdim=True).values
-        # Replace -inf rows (no valid tokens shouldn't happen but be safe)
-        max_scores = torch.where(torch.isinf(max_scores), torch.zeros_like(max_scores), max_scores)
-        exp_scores = torch.exp(scores - max_scores).masked_fill(~valid, 0.0)
-        num = torch.matmul(exp_scores, v)
-
-        denom_local = exp_scores.sum(dim=-1, keepdim=True)            # (B, H, L, 1)
-        # meta_tokens are logits in same space as scores; rescale by max_scores
-        meta_logits = self.meta_tokens.float().view(1, 1, 1, -1)      # (1, 1, 1, m)
-        denom_meta = torch.exp(meta_logits - max_scores).sum(dim=-1, keepdim=True)  # (B, H, L, 1)
-
-        denom = (denom_local + denom_meta).clamp(min=1e-6)
-        return num / denom
+        return out
 
     def forward(self, hidden_states, **kwargs):
         B, L, _ = hidden_states.shape
