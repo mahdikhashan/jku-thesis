@@ -222,7 +222,7 @@ class LizardAttention(nn.Module):
 
         out = y_gla + self.alpha_blend * y_awa
         out = out.transpose(1, 2).contiguous().view(B, L, -1)
-        out = self.o_proj(out)
+        out = self.o_proj(out.to(hidden_states.dtype))
 
         # Return tuple matching LlamaAttention signature
         return out, None, None
