@@ -51,7 +51,7 @@ GRAD_CLIP = 1.0
 ADAM_BETAS = (0.9, 0.99)
 ADAM_EPS = 1e-8
 WARMUP_RATIO = 0.1
-LOG_EVERY = 25
+LOG_EVERY = 1 #25
 
 # Stage-specific
 STAGE1_LR = 1e-3
@@ -159,9 +159,13 @@ class LizardAttention(nn.Module):
             log_gate = torch.log(gate_f.clamp(min=1e-6))            # (B, L), <= 0
             cum_log_gate = torch.cumsum(log_gate, dim=-1)            # (B, L)
             # G[b, t, s] = exp(cum[t] - cum[s]) for causal s <= t
-            G = torch.exp(cum_log_gate.unsqueeze(-1) - cum_log_gate.unsqueeze(-2))  # (B, L, L)
+            # G = torch.exp(cum_log_gate.unsqueeze(-1) - cum_log_gate.unsqueeze(-2))  # (B, L, L)
+            # causal = torch.tril(torch.ones(L, L, device=phi_q.device, dtype=torch.bool))
+            # G = G * causal.unsqueeze(0)                              # zero strict upper-tri
+            diff = cum_log_gate.unsqueeze(-1) - cum_log_gate.unsqueeze(-2)  # (B, L, L)
             causal = torch.tril(torch.ones(L, L, device=phi_q.device, dtype=torch.bool))
-            G = G * causal.unsqueeze(0)                              # zero strict upper-tri
+            diff = diff.masked_fill(~causal.unsqueeze(0), float('-inf'))
+            G = torch.exp(diff)  # safe: ≤ 1 on causal entries, 0 (from exp(-inf)) on masked entries
 
             scores = torch.matmul(phi_q_f, phi_k_f.transpose(-2, -1))  # (B, H, L, L)
             scores = scores * G.unsqueeze(1)                          # broadcast over heads
