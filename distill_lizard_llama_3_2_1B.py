@@ -37,7 +37,7 @@ import wandb
 MODEL_NAME = "meta-llama/Llama-3.2-1B"
 DATASET_NAME = "yahma/alpaca-cleaned"
 DATASET_SUBSET = 50_000
-SEQ_LEN = 2048
+SEQ_LEN = 1024
 
 # Lizard architecture
 FEATURE_DIM = 128
@@ -541,11 +541,12 @@ def stage2_finetune():
     print(f"  To reload: load base Llama-3.2-1B, call swap_attention(m), then m.load_state_dict(torch.load(STAGE2_CKPT), strict=False)")
     wandb.finish()
 
-
 # ============================================================
 # MAIN
 # ============================================================
 def main():
+    print(f"PYTORCH_CUDA_ALLOC_CONF = {os.environ.get('PYTORCH_CUDA_ALLOC_CONF', 'NOT SET')}")
+
     torch.manual_seed(SEED)
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
     # stage1_distill()
