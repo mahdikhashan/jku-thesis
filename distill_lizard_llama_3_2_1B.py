@@ -367,13 +367,15 @@ def stage1_distill():
     teacher_outputs = {}
 
     def make_hook(idx):
-        def hook(_, inp, out):
-            teacher_inputs[idx] = inp[0].detach()
-            teacher_outputs[idx] = (out[0] if isinstance(out, tuple) else out).detach()
+        def hook(module, args, kwargs, output):
+            x = args[0] if args else kwargs["hidden_states"]
+            teacher_inputs[idx] = x.detach()
+            teacher_outputs[idx] = (output[0] if isinstance(output, tuple) else output).detach()
+
         return hook
 
     for i, layer in enumerate(teacher.model.layers):
-        layer.self_attn.register_forward_hook(make_hook(i))
+        layer.self_attn.register_forward_hook(make_hook(i), with_kwargs=True)
 
     # ---- Tokenizer + data ----
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
