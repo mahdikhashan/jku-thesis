@@ -14,7 +14,7 @@ model is never run end-to-end during Stage 1; only its self_attn modules are.
 import os
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
-import math
+# import math
 from pathlib import Path
 
 import torch
@@ -183,6 +183,7 @@ class LizardAttention(nn.Module):
                ((idx.unsqueeze(1) - idx.unsqueeze(0)) < WINDOW_SIZE)
         out = F.scaled_dot_product_attention(
             q, k, v,
+            is_causal=True,
             attn_mask=mask.unsqueeze(0).unsqueeze(0),
             dropout_p=0.0,
         )
