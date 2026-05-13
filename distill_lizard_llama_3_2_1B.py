@@ -11,6 +11,8 @@ Stage 1 trains each LizardAttention layer-by-layer on the teacher's own
 (input, output) pairs to avoid hidden-state drift across layers. The student
 model is never run end-to-end during Stage 1; only its self_attn modules are.
 """
+import os
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 import math
 from pathlib import Path
@@ -494,9 +496,16 @@ def stage2_finetune():
             p.requires_grad = True
 
     # Required for grad checkpointing through peft
-    if hasattr(model, "enable_input_require_grads"):
-        model.enable_input_require_grads()
-    model.gradient_checkpointing_enable()
+    # if hasattr(model, "enable_input_require_grads"):
+    #     model.enable_input_require_grads()
+    # model.gradient_checkpointing_enable()
+
+    # Order matters: enable_input_require_grads BEFORE gradient_checkpointing_enable,
+    # and use_reentrant=False is required for peft compatibility
+    model.enable_input_require_grads()
+    model.gradient_checkpointing_enable(
+        gradient_checkpointing_kwargs={"use_reentrant": False}
+    )
 
     n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
     n_total = sum(p.numel() for p in model.parameters())
