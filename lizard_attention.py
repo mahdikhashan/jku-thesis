@@ -23,6 +23,8 @@ from flash_attn import flash_attn_func
 from fla.ops.gla import chunk_gla
 
 
+from config import *
+
 # These constants are still pulled from the script's global hyperparameters
 # FEATURE_DIM, WINDOW_SIZE, NUM_META_TOKENS — keep the same names
 
