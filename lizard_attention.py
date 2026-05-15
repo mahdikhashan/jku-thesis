@@ -83,10 +83,10 @@ class LizardAttention(nn.Module):
         B, H, L, K = phi_q.shape
         g = log_gate.view(B, 1, L, 1).expand(B, H, L, K).contiguous()
 
-        num, _ = fused_recurrent_gla(q=phi_q, k=phi_k, v=v, g=g, scale=1.0, head_first=True)
+        num, _ = fused_recurrent_gla(q=phi_q, k=phi_k, v=v, gk=g, scale=1.0, head_first=True)
 
         ones = torch.ones_like(v[..., :1])
-        denom, _ = fused_recurrent_gla(q=phi_q, k=phi_k, v=ones, g=g, scale=1.0, head_first=True)
+        denom, _ = fused_recurrent_gla(q=phi_q, k=phi_k, v=ones, gk=g, scale=1.0, head_first=True)
         denom = denom.clamp(min=1e-6)
 
         return num / denom
