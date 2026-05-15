@@ -81,15 +81,26 @@ class LizardAttention(nn.Module):
 
     def gla_branch(self, phi_q, phi_k, v, log_gate):
         B, H, L, K = phi_q.shape
-        g = log_gate.view(B, 1, L, 1).expand(B, H, L, K).contiguous()
+        D = v.shape[-1]
 
-        num, _ = fused_recurrent_gla(q=phi_q, k=phi_k, v=v, gk=g, scale=1.0, head_first=True)
+        # FLA now requires (B, T, H, D) — head_first option was removed
+        phi_q_ = phi_q.transpose(1, 2).contiguous()  # (B, L, H, K)
+        phi_k_ = phi_k.transpose(1, 2).contiguous()  # (B, L, H, K)
+        v_ = v.transpose(1, 2).contiguous()  # (B, L, H, D)
 
-        ones = torch.ones_like(v[..., :1])
-        denom, _ = fused_recurrent_gla(q=phi_q, k=phi_k, v=ones, gk=g, scale=1.0, head_first=True)
+        # Gate (B, L) -> (B, L, H, K), per-key feature
+        g = log_gate.view(B, L, 1, 1).expand(B, L, H, K).contiguous()
+
+        # Numerator
+        num, _ = fused_recurrent_gla(q=phi_q_, k=phi_k_, v=v_, gk=g)
+
+        # Denominator: same gated accumulation with v=ones
+        ones = torch.ones_like(v_[..., :1])  # (B, L, H, 1)
+        denom, _ = fused_recurrent_gla(q=phi_q_, k=phi_k_, v=ones, gk=g)
         denom = denom.clamp(min=1e-6)
 
-        return num / denom
+        out = num / denom  # (B, L, H, D)
+        return out.transpose(1, 2).contiguous()  # back to (B, H, L, D)
 
     def awa_branch(self, q, k, v):
         """Sliding-window softmax attention via FA2, with meta-token denominator.
