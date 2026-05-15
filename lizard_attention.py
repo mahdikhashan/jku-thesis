@@ -21,7 +21,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from flash_attn import flash_attn_func
 from fla.ops.gla import chunk_gla
-
+from fla.ops.gla import fused_recurrent_gla
 
 from config import *
 
@@ -80,37 +80,13 @@ class LizardAttention(nn.Module):
         return torch.cat([F.softmax(xw, dim=-1), F.softmax(-xw, dim=-1)], dim=-1)
 
     def gla_branch(self, phi_q, phi_k, v, log_gate):
-        """Normalized GLA via FLA's chunk_gla.
-
-        phi_q, phi_k: (B, H, L, 2 * FEATURE_DIM)
-        v:            (B, H, L, head_dim)
-        log_gate:     (B, L) — scalar log-gate per token, shared across heads
-        Returns:      (B, H, L, head_dim)
-
-        Paper eq (Sec 3.1):
-            y_i = phi_q · sum_t [prod_l gate_l] phi_k_t v_t^T
-                  / phi_q · sum_t [prod_l gate_l] phi_k_t
-
-        Computed as two chunk_gla calls — numerator with v, denominator with v=ones.
-        """
         B, H, L, K = phi_q.shape
-
-        # FLA's chunk_gla expects per-(head, feature) gates. Broadcast our scalar.
         g = log_gate.view(B, 1, L, 1).expand(B, H, L, K).contiguous()
 
-        # Numerator
-        num, _ = chunk_gla(
-            q=phi_q, k=phi_k, v=v, g=g,
-            scale=1.0,
-        )  # (B, H, L, head_dim)
+        num, _ = fused_recurrent_gla(q=phi_q, k=phi_k, v=v, g=g, scale=1.0, head_first=True)
 
-        # Denominator: same gated accumulation, but with v replaced by ones.
-        # Output of this call at position i is phi_q_i · sum_t G * phi_k_t  (a scalar).
-        ones = torch.ones_like(v[..., :1])  # (B, H, L, 1)
-        denom, _ = chunk_gla(
-            q=phi_q, k=phi_k, v=ones, g=g,
-            scale=1.0,
-        )  # (B, H, L, 1)
+        ones = torch.ones_like(v[..., :1])
+        denom, _ = fused_recurrent_gla(q=phi_q, k=phi_k, v=ones, g=g, scale=1.0, head_first=True)
         denom = denom.clamp(min=1e-6)
 
         return num / denom
