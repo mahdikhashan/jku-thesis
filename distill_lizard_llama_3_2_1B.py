@@ -30,6 +30,8 @@ from datasets import load_dataset
 from peft import LoraConfig, get_peft_model
 import wandb
 
+from lizard_attention import LizardAttention
+
 
 # ============================================================
 # HYPERPARAMETERS (edit here)
@@ -37,7 +39,7 @@ import wandb
 MODEL_NAME = "meta-llama/Llama-3.2-1B"
 DATASET_NAME = "yahma/alpaca-cleaned"
 DATASET_SUBSET = 50_000
-SEQ_LEN = 1024
+SEQ_LEN = 2048
 
 # Lizard architecture
 FEATURE_DIM = 128
@@ -82,147 +84,6 @@ WANDB_PROJECT = "lizard-1b"
 
 # Names of parameters that belong to the Lizard module (used for freeze logic)
 LIZARD_PARAM_KEYS = ("phi_q", "phi_k", "W_gamma", "meta_tokens", "alpha_blend")
-
-
-# ============================================================
-# LIZARD ATTENTION MODULE
-# ============================================================
-class LizardAttention(nn.Module):
-    """Drop-in replacement for LlamaAttention.
-
-    Output = GLA(x) + alpha * AnchorWindow(x)
-      - GLA: globally-aware gated linear attention (RoPE-free, recurrent)
-      - AnchorWindow: local softmax attention with meta-memory denominator tokens
-    """
-
-    def __init__(self, config, layer_idx: int):
-        super().__init__()
-        self.layer_idx = layer_idx
-        self.hidden_size = config.hidden_size
-        self.num_heads = config.num_attention_heads          # 32 for 1B
-        self.num_kv_heads = config.num_key_value_heads       # 8 for 1B (GQA)
-        self.head_dim = self.hidden_size // self.num_heads   # 64
-        self.kv_groups = self.num_heads // self.num_kv_heads # 4
-
-        # Standard projections (copied from teacher at swap time)
-        self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
-        self.k_proj = nn.Linear(self.hidden_size, self.num_kv_heads * self.head_dim, bias=False)
-        self.v_proj = nn.Linear(self.hidden_size, self.num_kv_heads * self.head_dim, bias=False)
-        self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=False)
-
-        # Lizard-added: Hedgehog feature maps phi_q, phi_k : head_dim -> 2 * FEATURE_DIM
-        self.phi_q = nn.Linear(self.head_dim, FEATURE_DIM, bias=False)
-        self.phi_k = nn.Linear(self.head_dim, FEATURE_DIM, bias=False)
-
-        # Scalar gate (shared across heads, per token): hidden -> 1
-        self.W_gamma = nn.Linear(self.hidden_size, 1, bias=False)
-
-        # Meta-memory token logits (denominator-only sinks for the window branch)
-        self.meta_tokens = nn.Parameter(torch.zeros(NUM_META_TOKENS))
-
-        # Learnable blend coefficient
-        self.alpha_blend = nn.Parameter(torch.tensor(1.0))
-
-        # Sensible init: feature maps small, gate centered at sigmoid(0) = 0.5
-        nn.init.normal_(self.phi_q.weight, std=0.02)
-        nn.init.normal_(self.phi_k.weight, std=0.02)
-        nn.init.zeros_(self.W_gamma.weight)
-
-    def hedgehog(self, x: torch.Tensor, proj: nn.Linear) -> torch.Tensor:
-        # x: (B, H, L, head_dim) -> (B, H, L, 2 * FEATURE_DIM)
-        xw = proj(x)
-        return torch.cat([torch.exp(xw), torch.exp(-xw)], dim=-1)
-
-    def gla_branch(self, phi_q, phi_k, v, gate):
-        """Chunked parallel-form GLA for memory-bounded training."""
-        B, H, L, _ = phi_q.shape
-        CHUNK = 256  # tune: smaller = less memory, more overhead
-
-        with torch.amp.autocast(device_type="cuda", enabled=False):
-            phi_q_f = phi_q.float()
-            phi_k_f = phi_k.float()
-            v_f = v.float()
-            gate_f = gate.float()
-
-            log_gate = torch.log(gate_f.clamp(min=1e-6))
-            cum_log_gate = torch.cumsum(log_gate, dim=-1)  # (B, L)
-
-            out_chunks = []
-            for start in range(0, L, CHUNK):
-                end = min(start + CHUNK, L)
-                # Query positions [start:end] attend to all key positions [0:end]
-                q_chunk = phi_q_f[:, :, start:end]
-                k_keys = phi_k_f[:, :, :end]
-                v_keys = v_f[:, :, :end]
-
-                cum_q = cum_log_gate[:, start:end].unsqueeze(-1)  # (B, chunk, 1)
-                cum_k = cum_log_gate[:, :end].unsqueeze(-2)  # (B, 1, end)
-                diff = cum_q - cum_k  # (B, chunk, end)
-
-                # Causal mask within the chunk
-                q_idx = torch.arange(start, end, device=phi_q.device)
-                k_idx = torch.arange(end, device=phi_q.device)
-                causal = q_idx.unsqueeze(-1) >= k_idx.unsqueeze(0)  # (chunk, end)
-                diff = diff.masked_fill(~causal.unsqueeze(0), float("-inf"))
-                G = torch.exp(diff)  # (B, chunk, end)
-
-                scores = torch.matmul(q_chunk, k_keys.transpose(-2, -1))  # (B, H, chunk, end)
-                scores = scores * G.unsqueeze(1)
-
-                num = torch.matmul(scores, v_keys)  # (B, H, chunk, D)
-                denom = scores.sum(dim=-1, keepdim=True).clamp(min=1e-6)
-                out_chunks.append(num / denom)
-
-            out = torch.cat(out_chunks, dim=2)
-        return out.to(v.dtype)
-
-    def awa_branch(self, q, k, v):
-        B, H, L, D = q.shape
-        idx = torch.arange(L, device=q.device)
-        mask = (idx.unsqueeze(0) <= idx.unsqueeze(1)) & \
-               ((idx.unsqueeze(1) - idx.unsqueeze(0)) < WINDOW_SIZE)
-        out = F.scaled_dot_product_attention(
-            q, k, v,
-            is_causal=True,
-            attn_mask=mask.unsqueeze(0).unsqueeze(0),
-            dropout_p=0.0,
-        )
-        return out
-
-    def forward(self, hidden_states, **kwargs):
-        B, L, _ = hidden_states.shape
-
-        q = self.q_proj(hidden_states).view(B, L, self.num_heads, self.head_dim).transpose(1, 2)
-        k = self.k_proj(hidden_states).view(B, L, self.num_kv_heads, self.head_dim).transpose(1, 2)
-        v = self.v_proj(hidden_states).view(B, L, self.num_kv_heads, self.head_dim).transpose(1, 2)
-
-        # GQA expand (no RoPE -- Lizard removes it)
-        k = k.repeat_interleave(self.kv_groups, dim=1)
-        v = v.repeat_interleave(self.kv_groups, dim=1)
-
-        # Branches
-        phi_q = self.hedgehog(q, self.phi_q)
-        phi_k = self.hedgehog(k, self.phi_k)
-        gate = torch.sigmoid(self.W_gamma(hidden_states)).squeeze(-1)  # (B, L)
-        y_gla = self.gla_branch(phi_q, phi_k, v, gate)
-        if torch.isnan(y_gla).any() or torch.isinf(y_gla).any():
-            print(f"[layer {self.layer_idx}] GLA produced NaN/Inf. "
-                  f"phi_q max: {phi_q.abs().max().item():.2e}, "
-                  f"phi_k max: {phi_k.abs().max().item():.2e}, "
-                  f"gate min: {gate.min().item():.4f}")
-
-        y_awa = self.awa_branch(q, k, v)
-        if torch.isnan(y_awa).any() or torch.isinf(y_awa).any():
-            print(f"[layer {self.layer_idx}] AWA produced NaN/Inf")
-
-        out = y_gla + self.alpha_blend * y_awa
-        out = out.transpose(1, 2).contiguous().view(B, L, -1)
-        out = self.o_proj(out.to(hidden_states.dtype))
-
-        # Return tuple matching LlamaAttention signature
-        # return out, None, None
-        return out, None
-
 
 # ============================================================
 # MODEL SURGERY HELPERS
@@ -549,7 +410,7 @@ def main():
 
     torch.manual_seed(SEED)
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
-    # stage1_distill()
+    stage1_distill()
     stage2_finetune()
     print("Done.")
 
