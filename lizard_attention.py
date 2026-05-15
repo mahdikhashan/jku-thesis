@@ -101,7 +101,7 @@ class LizardAttention(nn.Module):
         # Numerator
         num, _ = chunk_gla(
             q=phi_q, k=phi_k, v=v, g=g,
-            scale=1.0, head_first=True,
+            scale=1.0,
         )  # (B, H, L, head_dim)
 
         # Denominator: same gated accumulation, but with v replaced by ones.
@@ -109,7 +109,7 @@ class LizardAttention(nn.Module):
         ones = torch.ones_like(v[..., :1])  # (B, H, L, 1)
         denom, _ = chunk_gla(
             q=phi_q, k=phi_k, v=ones, g=g,
-            scale=1.0, head_first=True,
+            scale=1.0,
         )  # (B, H, L, 1)
         denom = denom.clamp(min=1e-6)
 
