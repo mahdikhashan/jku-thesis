@@ -103,43 +103,15 @@ class LizardAttention(nn.Module):
         return out.transpose(1, 2).contiguous()  # back to (B, H, L, D)
 
     def awa_branch(self, q, k, v):
-        """Sliding-window softmax attention via FA2, with meta-token denominator.
-
-        q, k, v: (B, H, L, head_dim)
-        Returns: (B, H, L, head_dim)
-
-        Math:
-            FA2 returns      out = numerator / denom_local
-            We want    out_corrected = numerator / (denom_local + denom_meta)
-                                     = out * denom_local / (denom_local + denom_meta)
-            denom_local = exp(lse)                  (FA2 returns lse directly)
-            denom_meta  = sum_j exp(meta_token_j)
-            rescale     = exp(lse - logaddexp(lse, log_sum_meta))  ∈ (0, 1]
-        """
         B, H, L, D = q.shape
-
-        # FA2 expects (B, L, H, D)
         q_ = q.transpose(1, 2).contiguous()
         k_ = k.transpose(1, 2).contiguous()
         v_ = v.transpose(1, 2).contiguous()
-
-        # Causal sliding window of size W: position i attends to [i-W+1, i]
-        out, lse, _ = flash_attn_func(
+        out = flash_attn_func(
             q_, k_, v_,
             causal=True,
             window_size=(WINDOW_SIZE - 1, 0),
-            return_attn_probs=True,
         )
-        # out: (B, L, H, D)
-        # lse: (B, H, L) — log of softmax denominator over the window (fp32)
-
-        # Meta-token denominator correction
-        log_sum_meta = torch.logsumexp(self.meta_tokens.float(), dim=0)  # scalar
-        log_total = torch.logaddexp(lse.float(), log_sum_meta)            # (B, H, L)
-        rescale = torch.exp(lse.float() - log_total)                      # (B, H, L), in (0, 1]
-
-        # Broadcast rescale (B, H, L) -> (B, L, H, 1) to match out (B, L, H, D)
-        out = out * rescale.transpose(1, 2).unsqueeze(-1).to(out.dtype)
         return out.transpose(1, 2).contiguous()
 
     def forward(self, hidden_states, **kwargs):
