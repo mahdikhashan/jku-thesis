@@ -329,6 +329,14 @@ def stage2_finetune():
         model, USE_GRADIENT_CHECKPOINTING_STAGE2, "stage2"
     )
 
+    # VERIFY GC IS ACTUALLY ON
+    print(f"  model.is_gradient_checkpointing: {model.is_gradient_checkpointing}")
+    if hasattr(model, "base_model"):
+        print(f"  base_model.is_gradient_checkpointing: {model.base_model.is_gradient_checkpointing}")
+        if hasattr(model.base_model, "model"):
+            inner = model.base_model.model
+            print(f"  base_model.model.is_gradient_checkpointing: {inner.is_gradient_checkpointing}")
+
     n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
     n_total = sum(p.numel() for p in model.parameters())
     print(f"  trainable: {n_train:,}  /  total: {n_total:,}  ({100 * n_train / n_total:.3f}%)")
