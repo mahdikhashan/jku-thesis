@@ -14,7 +14,6 @@ model is never run end-to-end during Stage 1; only its self_attn modules are.
 import os
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
-# import math
 from pathlib import Path
 
 import torch
@@ -34,6 +33,33 @@ from config import *
 
 from lizard_attention import LizardAttention
 
+
+# ============================================================
+# MEMORY KNOBS
+# ============================================================
+# Toggle gradient checkpointing per stage. Stage 2 typically needs it on L4
+# with the pure-PyTorch AWA at SEQ_LEN=2048. Stage 1 trains per-layer so
+# memory pressure is lower; turn on only if Stage 1 also OOMs.
+
+def maybe_enable_gradient_checkpointing(model, enable: bool, stage_name: str):
+    """Enable gradient checkpointing if requested. Order matters with peft."""
+    if not enable:
+        print(f"  [{stage_name}] gradient checkpointing: OFF")
+        return model
+
+    # enable_input_require_grads MUST come before gradient_checkpointing_enable
+    # when peft-wrapped models are involved (peft freezes base params; without
+    # this call, gradients can't flow through frozen embeddings during recompute)
+    if hasattr(model, "enable_input_require_grads"):
+        model.enable_input_require_grads()
+
+    # use_reentrant=False is required for peft compatibility and avoids
+    # in-place modification issues with the autograd graph
+    model.gradient_checkpointing_enable(
+        gradient_checkpointing_kwargs={"use_reentrant": False}
+    )
+    print(f"  [{stage_name}] gradient checkpointing: ON (use_reentrant=False)")
+    return model
 
 
 # ============================================================
@@ -152,6 +178,7 @@ def stage1_distill():
             "stage": 1, "model": MODEL_NAME, "lr": STAGE1_LR, "epochs": NUM_EPOCHS,
             "seq_len": SEQ_LEN, "feature_dim": FEATURE_DIM,
             "window_size": WINDOW_SIZE, "meta_tokens": NUM_META_TOKENS,
+            "grad_checkpointing": USE_GRADIENT_CHECKPOINTING_STAGE1,
         },
     )
 
@@ -165,6 +192,13 @@ def stage1_distill():
     student = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=DTYPE).to(DEVICE)
     student = swap_attention(student)
     student = freeze_base_keep_lizard(student)
+
+    # Stage 1 runs layers individually (no full forward), so gradient
+    # checkpointing on the wrapper model is mostly a no-op here. Provided as
+    # a flag for symmetry; safe to leave off unless Stage 1 itself OOMs.
+    student = maybe_enable_gradient_checkpointing(
+        student, USE_GRADIENT_CHECKPOINTING_STAGE1, "stage1"
+    )
 
     n_train = sum(p.numel() for p in student.parameters() if p.requires_grad)
     n_total = sum(p.numel() for p in student.parameters())
@@ -221,7 +255,6 @@ def stage1_distill():
             for i, layer in enumerate(student.model.layers):
                 x = teacher_inputs[i]
                 y_target = teacher_outputs[i]
-                # y_pred, _, _ = layer.self_attn(x)
                 y_pred, _ = layer.self_attn(x)
                 layer_loss = F.mse_loss(y_pred.float(), y_target.float()) / n_layers
                 (layer_loss / GRAD_ACCUM).backward()
@@ -263,6 +296,7 @@ def stage2_finetune():
         config={
             "stage": 2, "model": MODEL_NAME, "lr": STAGE2_LR, "epochs": NUM_EPOCHS,
             "lora_rank": LORA_RANK, "lora_alpha": LORA_ALPHA, "lora_targets": LORA_TARGETS,
+            "grad_checkpointing": USE_GRADIENT_CHECKPOINTING_STAGE2,
         },
     )
 
@@ -288,16 +322,11 @@ def stage2_finetune():
         if is_lizard_param(name):
             p.requires_grad = True
 
-    # Required for grad checkpointing through peft
-    # if hasattr(model, "enable_input_require_grads"):
-    #     model.enable_input_require_grads()
-    # model.gradient_checkpointing_enable()
-
-    # Order matters: enable_input_require_grads BEFORE gradient_checkpointing_enable,
-    # and use_reentrant=False is required for peft compatibility
-    model.enable_input_require_grads()
-    model.gradient_checkpointing_enable(
-        gradient_checkpointing_kwargs={"use_reentrant": False}
+    # Gradient checkpointing — must come AFTER peft wrapping. The helper handles
+    # the correct ordering: enable_input_require_grads -> gradient_checkpointing_enable
+    # with use_reentrant=False (required for peft compatibility).
+    model = maybe_enable_gradient_checkpointing(
+        model, USE_GRADIENT_CHECKPOINTING_STAGE2, "stage2"
     )
 
     n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -353,6 +382,7 @@ def stage2_finetune():
     print(f"  To reload: load base Llama-3.2-1B, call swap_attention(m), then m.load_state_dict(torch.load(STAGE2_CKPT), strict=False)")
     wandb.finish()
 
+
 # ============================================================
 # MAIN
 # ============================================================
@@ -361,7 +391,7 @@ def main():
 
     torch.manual_seed(SEED)
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
-    stage1_distill()
+    # stage1_distill()
     stage2_finetune()
     print("Done.")
 

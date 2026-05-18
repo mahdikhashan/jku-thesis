@@ -55,3 +55,7 @@ WANDB_PROJECT = "lizard-1b"
 
 # Names of parameters that belong to the Lizard module (used for freeze logic)
 LIZARD_PARAM_KEYS = ("phi_q", "phi_k", "W_gamma", "meta_tokens", "alpha_blend")
+
+USE_GRADIENT_CHECKPOINTING_STAGE1 = False
+USE_GRADIENT_CHECKPOINTING_STAGE2 = True
+
