@@ -16,6 +16,7 @@ If flash-attn build fails on your L4, try a prebuilt wheel from
 https://github.com/Dao-AILab/flash-attention/releases matching your torch/cuda.
 """
 
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -103,16 +104,61 @@ class LizardAttention(nn.Module):
         return out.transpose(1, 2).contiguous()  # back to (B, H, L, D)
 
     def awa_branch(self, q, k, v):
+        """Paper-faithful Anchor Window Attention with meta-token denominator.
+
+        Implements Lizard paper Section 3.1:
+          y_i = sum_{t in window} exp(q_i · k_t / sqrt(d)) v_t
+                / [sum_j t_j + sum_{t in window} exp(q_i · k_t / sqrt(d))]
+
+        Meta tokens t_j enter the denominator additively in max-subtracted softmax space.
+
+        Args:
+            q, k, v: (B, H, L, head_dim)
+        Returns:
+            (B, H, L, head_dim)
+        """
         B, H, L, D = q.shape
-        q_ = q.transpose(1, 2).contiguous()
-        k_ = k.transpose(1, 2).contiguous()
-        v_ = v.transpose(1, 2).contiguous()
-        out = flash_attn_func(
-            q_, k_, v_,
-            causal=True,
-            window_size=(WINDOW_SIZE - 1, 0),
-        )
-        return out.transpose(1, 2).contiguous()
+        scale = 1.0 / math.sqrt(D)
+        device = q.device
+
+        # Sliding causal window: position i attends to [max(0, i-W+1), i]
+        idx = torch.arange(L, device=device)
+        valid = (idx.unsqueeze(0) <= idx.unsqueeze(1)) & \
+                ((idx.unsqueeze(1) - idx.unsqueeze(0)) < WINDOW_SIZE)
+        # valid: (L, L)
+
+        # Compute scores in fp32 for stability
+        q_f = q.float()
+        k_f = k.float()
+        v_f = v.float()
+
+        scores = torch.matmul(q_f, k_f.transpose(-2, -1)) * scale  # (B, H, L, L)
+        scores = scores.masked_fill(~valid.unsqueeze(0).unsqueeze(0), float('-inf'))
+
+        # Numerically stable softmax with meta-token denominator
+        # max over valid positions per query
+        max_scores = scores.max(dim=-1, keepdim=True).values  # (B, H, L, 1)
+        # If a row is all -inf (shouldn't happen with causal window), guard against NaN
+        max_scores = torch.where(torch.isinf(max_scores), torch.zeros_like(max_scores), max_scores)
+
+        exp_scores = torch.exp(scores - max_scores)  # (B, H, L, L)
+        exp_scores = exp_scores.masked_fill(~valid.unsqueeze(0).unsqueeze(0), 0.0)
+
+        # Numerator: weighted sum of values
+        num = torch.matmul(exp_scores, v_f)  # (B, H, L, D)
+
+        # Local denominator: sum over window
+        denom_local = exp_scores.sum(dim=-1, keepdim=True)  # (B, H, L, 1)
+
+        # Meta-token denominator: sum_j exp(meta_j - max_scores)
+        # meta_tokens treated as logits; their contribution scales with max_scores
+        meta_logits = self.meta_tokens.float().view(1, 1, 1, -1)  # (1, 1, 1, M)
+        denom_meta = torch.exp(meta_logits - max_scores).sum(dim=-1, keepdim=True)  # (B, H, L, 1)
+
+        denom = (denom_local + denom_meta).clamp(min=1e-6)
+        out = num / denom  # (B, H, L, D)
+
+        return out.to(v.dtype)
 
     def forward(self, hidden_states, **kwargs):
         B, L, _ = hidden_states.shape
