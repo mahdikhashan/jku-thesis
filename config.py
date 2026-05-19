@@ -57,5 +57,5 @@ WANDB_PROJECT = "lizard-1b"
 LIZARD_PARAM_KEYS = ("phi_q", "phi_k", "W_gamma", "meta_tokens", "alpha_blend")
 
 USE_GRADIENT_CHECKPOINTING_STAGE1 = False
-USE_GRADIENT_CHECKPOINTING_STAGE2 = True
+USE_GRADIENT_CHECKPOINTING_STAGE2 = False
 
