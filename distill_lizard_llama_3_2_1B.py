@@ -350,6 +350,23 @@ def stage2_finetune():
     # Optimizer + scheduler
     trainable = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.AdamW(trainable, lr=STAGE2_LR, betas=ADAM_BETAS, eps=ADAM_EPS)
+
+    # DIAGNOSTIC
+    print("\n=== Parameters in optimizer ===")
+    lora_count = 0
+    lizard_count = 0
+    for name, p in model.named_parameters():
+        if p.requires_grad:
+            if 'lora' in name.lower():
+                lora_count += 1
+            elif any(k in name for k in ('meta_tokens', 'alpha_blend', 'phi_q', 'phi_k', 'W_gamma')):
+                lizard_count += 1
+                print(f"  LIZARD: {name}  shape={tuple(p.shape)}")
+            else:
+                print(f"  OTHER: {name}  shape={tuple(p.shape)}")
+    print(f"LoRA params: {lora_count}, Lizard params: {lizard_count}")
+    print(f"Total trainable: {sum(p.numel() for p in trainable):,}")
+
     total_steps = (len(loader) * NUM_EPOCHS) // GRAD_ACCUM
     warmup_steps = int(total_steps * WARMUP_RATIO)
     sched = get_cosine_schedule_with_warmup(optim, warmup_steps, total_steps)
@@ -379,6 +396,12 @@ def stage2_finetune():
                     lr = sched.get_last_lr()[0]
                     print(f"[stage2] epoch {epoch} step {step}/{total_steps} loss {loss.item():.4f} lr {lr:.2e}")
                     wandb.log({"stage2/loss": loss.item(), "stage2/lr": lr, "stage2/step": step})
+
+    print("\n=== Lizard params at end of Stage 2 (before merge) ===")
+    for i, layer in enumerate(model.base_model.model.model.layers[:3]):
+        attn = layer.self_attn
+        print(f"Layer {i}: alpha={attn.alpha_blend.item():.4f}, "
+              f"meta={[f'{m:.4f}' for m in attn.meta_tokens]}")
 
     # Merge LoRA and save full state dict (LizardAttention is not a HF registered
     # architecture, so save_pretrained alone would not be reloadable correctly;
