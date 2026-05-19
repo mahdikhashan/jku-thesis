@@ -432,6 +432,14 @@ def stage2_finetune():
 
                 if (batch_idx + 1) % GRAD_ACCUM == 0:
                     torch.nn.utils.clip_grad_norm_(trainable, GRAD_CLIP)
+
+                    if step == 0 and batch_idx == 0:
+                        print("\n=== Grads AFTER clip_grad_norm (before optim.step) ===")
+                        for name, p in model.named_parameters():
+                            if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
+                                g = p.grad
+                                print(f"  {name}: grad={'None' if g is None else f'{g.abs().mean().item():.4e}'}")
+
                     optim.step()
                     sched.step()
                     optim.zero_grad()
