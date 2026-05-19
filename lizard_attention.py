@@ -1,5 +1,5 @@
 """
-LizardAttention — iteration 2.
+LizardAttention — iteration 2 + iter 4 fp32 dtype patches.
 
 Changes from iteration 1:
   - GLA via FLA's chunk_gla kernel (correct + fast, replaces hand-written chunked version)
@@ -8,12 +8,14 @@ Changes from iteration 1:
   - Hedgehog activation: softmax (per paper Table 13)
   - Normalized GLA output (per paper Section 3.1; needs a 2nd chunk_gla call)
 
-Requirements:
-    pip install flash-attn --no-build-isolation     # FA2 (build takes ~20 min on L4)
-    pip install flash-linear-attention              # FLA
-
-If flash-attn build fails on your L4, try a prebuilt wheel from
-https://github.com/Dao-AILab/flash-attention/releases matching your torch/cuda.
+Iter 4 mixed-precision notes:
+  - Lizard auxiliary parameters (phi_q, phi_k, W_gamma, meta_tokens, alpha_blend)
+    are kept in fp32 by the training script to avoid bf16 quantization stalling
+    AdamW updates on small parameters.
+  - Inputs (q, k, v, hidden_states) arrive in bf16 from the base attention path.
+  - Wherever an fp32 weight is applied to a bf16 input, we cast the input to fp32
+    at the boundary. The fp32 result is implicitly downcast to bf16 by downstream
+    ops (residual add, o_proj).
 """
 
 import math
@@ -25,9 +27,6 @@ from fla.ops.gla import chunk_gla
 from fla.ops.gla import fused_recurrent_gla
 
 from config import *
-
-# These constants are still pulled from the script's global hyperparameters
-# FEATURE_DIM, WINDOW_SIZE, NUM_META_TOKENS — keep the same names
 
 
 class LizardAttention(nn.Module):
@@ -77,6 +76,12 @@ class LizardAttention(nn.Module):
         x: (B, H, L, head_dim)  ->  (B, H, L, 2 * FEATURE_DIM)
         Bounded in (0, 1] along feature dim; sums to 1 along feature dim per half.
         """
+        # === DTYPE BOUNDARY ===
+        # proj.weight may be fp32 (kept in fp32 for AdamW precision) while x is
+        # typically bf16 from upstream. F.linear requires matching dtypes; cast
+        # input up to weight's dtype so fp32 weights can be exercised fully.
+        if x.dtype != proj.weight.dtype:
+            x = x.to(proj.weight.dtype)
         xw = proj(x)
         return torch.cat([F.softmax(xw, dim=-1), F.softmax(-xw, dim=-1)], dim=-1)
 
@@ -91,6 +96,15 @@ class LizardAttention(nn.Module):
 
         # Gate (B, L) -> (B, L, H, K), per-key feature
         g = log_gate.view(B, L, 1, 1).expand(B, L, H, K).contiguous()
+
+        # FLA kernels expect all tensors in the same dtype. phi_q/phi_k come
+        # out of hedgehog in fp32 (after upcast); v and gate may be bf16.
+        # Align everything to phi_q's dtype before calling the kernel.
+        target_dtype = phi_q_.dtype
+        if v_.dtype != target_dtype:
+            v_ = v_.to(target_dtype)
+        if g.dtype != target_dtype:
+            g = g.to(target_dtype)
 
         # Numerator
         num, _ = fused_recurrent_gla(q=phi_q_, k=phi_k_, v=v_, gk=g)
@@ -109,6 +123,10 @@ class LizardAttention(nn.Module):
         Never materializes the full (L, L) score matrix; only per-chunk slices.
         Paper-faithful: identical math to the unchunked reference, verified by
         numerical equivalence test (cosine 1.000000).
+
+        Note: all softmax math is already in fp32 internally (.float() calls
+        on scores and v_chunk), so meta_tokens being fp32 fits naturally — no
+        extra cast needed beyond what's already there.
         """
         import math
         B, H, L, D = q.shape
@@ -133,7 +151,7 @@ class LizardAttention(nn.Module):
             k_idx = torch.arange(k_start, k_end, device=device).unsqueeze(0)
             valid = (k_idx <= q_idx) & ((q_idx - k_idx) < WINDOW_SIZE)
 
-            # Compute attention in fp32 for stability
+            # Compute attention in fp32 for stability (scores promoted via .float())
             scores = (torch.matmul(q_chunk.float(), k_chunk.float().transpose(-2, -1)) * scale)
             scores = scores.masked_fill(~valid.unsqueeze(0).unsqueeze(0), float('-inf'))
 
@@ -146,6 +164,8 @@ class LizardAttention(nn.Module):
             num = torch.matmul(exp_scores, v_chunk.float())
             denom_local = exp_scores.sum(dim=-1, keepdim=True)
 
+            # meta_tokens may be fp32 (after iter 4 upcast); .float() is a no-op
+            # if already fp32, otherwise promotes from bf16. Same effect either way.
             meta_logits = self.meta_tokens.float().view(1, 1, 1, -1)
             denom_meta = torch.exp(meta_logits - max_scores).sum(dim=-1, keepdim=True)
 
@@ -166,18 +186,34 @@ class LizardAttention(nn.Module):
         v = v.repeat_interleave(self.kv_groups, dim=1)
 
         # Feature maps and gate
+        # hedgehog handles the dtype boundary internally for phi_q / phi_k
         phi_q = self.hedgehog(q, self.phi_q)
         phi_k = self.hedgehog(k, self.phi_k)
-        gate = torch.sigmoid(self.W_gamma(hidden_states)).squeeze(-1).clamp(min=1e-6)  # (B, L)
+
+        # === DTYPE BOUNDARY ===
+        # W_gamma may be fp32 while hidden_states is bf16. Cast input to match.
+        gate_input = hidden_states
+        if gate_input.dtype != self.W_gamma.weight.dtype:
+            gate_input = gate_input.to(self.W_gamma.weight.dtype)
+        gate = torch.sigmoid(self.W_gamma(gate_input)).squeeze(-1).clamp(min=1e-6)  # (B, L)
         log_gate = torch.log(gate)
 
         # Branches
         y_gla = self.gla_branch(phi_q, phi_k, v, log_gate)
         y_awa = self.awa_branch(q, k, v)
 
-        # Combine and project
-        out = y_gla + self.alpha_blend * y_awa
+        # === DTYPE BOUNDARY ===
+        # alpha_blend may be fp32 while y_awa is bf16 (matches input dtype of v).
+        # Promote y_awa to alpha_blend's dtype for the multiplication, then add to
+        # y_gla. y_gla's dtype follows phi_q (potentially fp32 from hedgehog).
+        # Final cast back to hidden_states.dtype happens before o_proj.
+        if y_gla.dtype != y_awa.dtype:
+            y_awa = y_awa.to(y_gla.dtype)
+        alpha = self.alpha_blend.to(y_gla.dtype)
+        out = y_gla + alpha * y_awa
+
         out = out.transpose(1, 2).contiguous().view(B, L, -1)
+        # Cast back to base model dtype for o_proj (which stays in bf16)
         out = self.o_proj(out.to(hidden_states.dtype))
 
         # Return tuple matching newer LlamaAttention signature: (output, attn_weights)
