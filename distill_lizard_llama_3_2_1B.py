@@ -441,6 +441,14 @@ def stage2_finetune():
                                 print(f"  {name}: grad={'None' if g is None else f'{g.abs().mean().item():.4e}'}")
 
                     optim.step()
+
+                    # NEW: check values RIGHT after step, BEFORE zero_grad
+                    if step == 0:  # before increment
+                        print("\n=== Values AFTER optim.step (BEFORE zero_grad) ===")
+                        for name, p in model.named_parameters():
+                            if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
+                                print(f"  {name}: value={p.detach().cpu().tolist() if p.numel() > 1 else p.item():.6f}")
+
                     sched.step()
                     optim.zero_grad()
                     step += 1
