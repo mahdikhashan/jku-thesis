@@ -397,16 +397,24 @@ def stage2_finetune():
                     print(f"[stage2] epoch {epoch} step {step}/{total_steps} loss {loss.item():.4f} lr {lr:.2e}")
                     wandb.log({"stage2/loss": loss.item(), "stage2/lr": lr, "stage2/step": step})
 
-    print("\n=== Lizard params at end of Stage 2 (before merge) ===")
-    for i, layer in enumerate(model.base_model.model.model.layers[:3]):
-        attn = layer.self_attn
-        print(f"Layer {i}: alpha={attn.alpha_blend.item():.4f}, "
-              f"meta={[f'{m:.4f}' for m in attn.meta_tokens]}")
-
     # Merge LoRA and save full state dict (LizardAttention is not a HF registered
     # architecture, so save_pretrained alone would not be reloadable correctly;
     # save the full state dict instead, and reconstruct via swap_attention + load).
+    # === Before merge_and_unload, check Lizard param values ===
+    print("\n=== Lizard params BEFORE merge_and_unload ===")
+    for i in [0, 5, 10, 15]:
+        attn = model.base_model.model.model.layers[i].self_attn
+        print(f"Layer {i}: alpha={attn.alpha_blend.item():.4f}, "
+              f"meta={[f'{m:.4f}' for m in attn.meta_tokens]}")
+
     model = model.merge_and_unload()
+
+    print("\n=== Lizard params AFTER merge_and_unload ===")
+    for i in [0, 5, 10, 15]:
+        attn = model.model.layers[i].self_attn  # no more base_model wrapper
+        print(f"Layer {i}: alpha={attn.alpha_blend.item():.4f}, "
+              f"meta={[f'{m:.4f}' for m in attn.meta_tokens]}")
+
     full_sd = {n: p.detach().cpu() for n, p in model.named_parameters()}
     torch.save(full_sd, STAGE2_CKPT)
     print(f"  Stage 2 full state dict -> {STAGE2_CKPT}")
