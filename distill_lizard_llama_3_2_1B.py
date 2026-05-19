@@ -56,7 +56,7 @@ def maybe_enable_gradient_checkpointing(model, enable: bool, stage_name: str):
     # use_reentrant=False is required for peft compatibility and avoids
     # in-place modification issues with the autograd graph
     model.gradient_checkpointing_enable(
-        gradient_checkpointing_kwargs={"use_reentrant": False}
+        gradient_checkpointing_kwargs={"use_reentrant": True}
     )
     print(f"  [{stage_name}] gradient checkpointing: ON (use_reentrant=False)")
     return model
