@@ -375,32 +375,32 @@ def stage2_finetune():
     step = 0
     optim.zero_grad()
 
-    for epoch in range(NUM_EPOCHS):
-        for batch_idx, batch in enumerate(loader):
-            input_ids = batch["input_ids"].to(DEVICE)
-            labels = batch["labels"].to(DEVICE)
+    try:
+        for epoch in range(NUM_EPOCHS):
+            for batch_idx, batch in enumerate(loader):
+                input_ids = batch["input_ids"].to(DEVICE)
+                labels = batch["labels"].to(DEVICE)
 
-            out = model(input_ids=input_ids, labels=labels, use_cache=False)
-            loss = out.loss
+                out = model(input_ids=input_ids, labels=labels, use_cache=False)
+                loss = out.loss
 
-            (loss / GRAD_ACCUM).backward()
+                (loss / GRAD_ACCUM).backward()
 
-            if (batch_idx + 1) % GRAD_ACCUM == 0:
-                torch.nn.utils.clip_grad_norm_(trainable, GRAD_CLIP)
-                optim.step()
-                sched.step()
-                optim.zero_grad()
-                step += 1
+                if (batch_idx + 1) % GRAD_ACCUM == 0:
+                    torch.nn.utils.clip_grad_norm_(trainable, GRAD_CLIP)
+                    optim.step()
+                    sched.step()
+                    optim.zero_grad()
+                    step += 1
 
-                if step % LOG_EVERY == 0:
-                    lr = sched.get_last_lr()[0]
-                    print(f"[stage2] epoch {epoch} step {step}/{total_steps} loss {loss.item():.4f} lr {lr:.2e}")
-                    wandb.log({"stage2/loss": loss.item(), "stage2/lr": lr, "stage2/step": step})
+                    if step % LOG_EVERY == 0:
+                        lr = sched.get_last_lr()[0]
+                        print(f"[stage2] epoch {epoch} step {step}/{total_steps} loss {loss.item():.4f} lr {lr:.2e}")
+                        wandb.log({"stage2/loss": loss.item(), "stage2/lr": lr, "stage2/step": step})
+    except KeyboardInterrupt:
+        print(f"\n!! Interrupted at step {step}. Running diagnostics...")
 
-    # Merge LoRA and save full state dict (LizardAttention is not a HF registered
-    # architecture, so save_pretrained alone would not be reloadable correctly;
-    # save the full state dict instead, and reconstruct via swap_attention + load).
-    # === Before merge_and_unload, check Lizard param values ===
+    # --- Diagnostic prints always run, even after Ctrl+C ---
     print("\n=== Lizard params BEFORE merge_and_unload ===")
     for i in [0, 5, 10, 15]:
         attn = model.base_model.model.model.layers[i].self_attn
@@ -411,7 +411,7 @@ def stage2_finetune():
 
     print("\n=== Lizard params AFTER merge_and_unload ===")
     for i in [0, 5, 10, 15]:
-        attn = model.model.layers[i].self_attn  # no more base_model wrapper
+        attn = model.model.layers[i].self_attn
         print(f"Layer {i}: alpha={attn.alpha_blend.item():.4f}, "
               f"meta={[f'{m:.4f}' for m in attn.meta_tokens]}")
 
