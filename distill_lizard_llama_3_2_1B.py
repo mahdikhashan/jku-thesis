@@ -193,6 +193,13 @@ def stage1_distill():
     student = swap_attention(student)
     student = freeze_base_keep_lizard(student)
 
+    # === UPCAST LIZARD PARAMS TO FP32 ===
+    for name, p in student.named_parameters():
+        if p.requires_grad and any(k in name for k in
+                                   ('meta_tokens', 'alpha_blend', 'phi_q', 'phi_k', 'W_gamma')):
+            if p.dtype != torch.float32:
+                p.data = p.data.float()
+
     # Stage 1 runs layers individually (no full forward), so gradient
     # checkpointing on the wrapper model is mostly a no-op here. Provided as
     # a flag for symmetry; safe to leave off unless Stage 1 itself OOMs.
@@ -305,6 +312,16 @@ def stage2_finetune():
     model = swap_attention(model)
     model = load_trainable(model, STAGE1_CKPT)
     model = freeze_base_keep_lizard(model)
+
+    # === UPCAST LIZARD PARAMS TO FP32 (insert here) ===
+    upcast_count = 0
+    for name, p in model.named_parameters():
+        if p.requires_grad and any(k in name for k in
+                                   ('meta_tokens', 'alpha_blend', 'phi_q', 'phi_k', 'W_gamma')):
+            if p.dtype != torch.float32:
+                p.data = p.data.float()
+                upcast_count += 1
+    print(f"  upcast {upcast_count} Lizard parameters to fp32")
 
     # Attach LoRA to q/k/v of every attention layer
     lora_cfg = LoraConfig(
