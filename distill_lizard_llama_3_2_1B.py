@@ -352,11 +352,28 @@ def stage2_finetune():
     optim = torch.optim.AdamW(trainable, lr=STAGE2_LR, betas=ADAM_BETAS, eps=ADAM_EPS)
 
     # ============================================================
+    # DIAGNOSTIC: dtype check
+    # If Lizard params are bf16, AdamW updates of magnitude < ~2^-7
+    # (≈ 7.8e-3 near value 1.0) silently quantize to zero — parameter
+    # gets a gradient and optim.step() runs, but the value doesn't move.
+    # Expected: torch.float32 for these to update reliably.
+    # If torch.bfloat16: that's the bug, need to upcast to fp32.
+    # ============================================================
+    print("\n=== DTYPE CHECK (Lizard params + LoRA params) ===")
+    attn = model.base_model.model.model.layers[0].self_attn
+    print(f"  alpha_blend:     dtype = {attn.alpha_blend.dtype}, value = {attn.alpha_blend.item():.6f}")
+    print(f"  meta_tokens:     dtype = {attn.meta_tokens.dtype}, value = {attn.meta_tokens.detach().cpu().tolist()}")
+    print(f"  phi_q.weight:    dtype = {attn.phi_q.weight.dtype}")
+    print(f"  phi_k.weight:    dtype = {attn.phi_k.weight.dtype}")
+    print(f"  W_gamma.weight:  dtype = {attn.W_gamma.weight.dtype}")
+    # Find a LoRA param for comparison
+    for name, p in model.named_parameters():
+        if "lora_A" in name and "layers.0" in name:
+            print(f"  {name}: dtype = {p.dtype}  (for comparison)")
+            break
+
+    # ============================================================
     # DIAGNOSTIC: list the params in the optimizer
-    # Confirms which Lizard params and how many LoRA params the
-    # optimizer is actually tracking. If a param is "trainable" but
-    # missing here, there's a mismatch between requires_grad and the
-    # optimizer's param list.
     # ============================================================
     print("\n=== Parameters in optimizer ===")
     lora_count = 0
@@ -367,23 +384,14 @@ def stage2_finetune():
                 lora_count += 1
             elif any(k in name for k in ('meta_tokens', 'alpha_blend', 'phi_q', 'phi_k', 'W_gamma')):
                 lizard_count += 1
-                print(f"  LIZARD: {name}  shape={tuple(p.shape)}")
+                print(f"  LIZARD: {name}  shape={tuple(p.shape)}  dtype={p.dtype}")
             else:
-                print(f"  OTHER: {name}  shape={tuple(p.shape)}")
+                print(f"  OTHER: {name}  shape={tuple(p.shape)}  dtype={p.dtype}")
     print(f"LoRA params: {lora_count}, Lizard params: {lizard_count}")
     print(f"Total trainable: {sum(p.numel() for p in trainable):,}")
 
     # ============================================================
     # DIAGNOSTIC: parameter identity check (pre-training)
-    # Captures the Python object id() and value of layer-0 alpha_blend
-    # BEFORE training. This lets us verify after training that:
-    #   (a) the parameter object is the same one the optimizer holds
-    #   (b) the parameter is actually in optimizer's param groups
-    #   (c) its value has changed (or not) during training
-    # If (a) is False after training: something replaced the param
-    #   mid-training (peft, gradient checkpointing internals, etc.)
-    # If (b) is False: the optimizer is updating a ghost; model sees
-    #   the original untouched parameter.
     # ============================================================
     print("\n=== Parameter identity check (BEFORE training) ===")
     tracked_params = {}  # name -> (id, initial_value, requires_grad)
@@ -399,6 +407,7 @@ def stage2_finetune():
                          else f"{p.detach().cpu().tolist()}")
             print(f"  {name}")
             print(f"    id(p)         = {id(p)}")
+            print(f"    dtype         = {p.dtype}")
             print(f"    value         = {value_str}")
             print(f"    requires_grad = {p.requires_grad}")
             print(f"    in optimizer? = {in_optim}")
@@ -422,13 +431,21 @@ def stage2_finetune():
 
                 (loss / GRAD_ACCUM).backward()
 
-                # === NEW: check grads RIGHT AFTER backward, before anything else ===
-                if step == 0 and batch_idx == 0:  # very first micro-batch's backward
+                # === Grads RIGHT AFTER backward (before optim.step or zero_grad) ===
+                # Also reports gradient dtype — if the param is fp32 but grad is bf16,
+                # PyTorch may silently downcast updates and cause quantization
+                if step == 0 and batch_idx == 0:
                     print(f"\n=== Grads right after first backward (BEFORE optim.step or zero_grad) ===")
                     for name, p in model.named_parameters():
                         if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
                             g = p.grad
-                            print(f"  {name}: grad={'None' if g is None else f'{g.abs().mean().item():.4e}'}")
+                            if g is None:
+                                print(f"  {name}: grad=None")
+                            else:
+                                print(f"  {name}: "
+                                      f"grad mean={g.abs().mean().item():.4e}, "
+                                      f"grad dtype={g.dtype}, "
+                                      f"param dtype={p.dtype}")
 
                 if (batch_idx + 1) % GRAD_ACCUM == 0:
                     torch.nn.utils.clip_grad_norm_(trainable, GRAD_CLIP)
@@ -438,30 +455,50 @@ def stage2_finetune():
                         for name, p in model.named_parameters():
                             if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
                                 g = p.grad
-                                print(f"  {name}: grad={'None' if g is None else f'{g.abs().mean().item():.4e}'}")
+                                if g is None:
+                                    print(f"  {name}: grad=None")
+                                else:
+                                    print(f"  {name}: grad mean={g.abs().mean().item():.4e}, dtype={g.dtype}")
+
+                    # === Capture value BEFORE optim.step for delta comparison ===
+                    pre_step_values = {}
+                    if step == 0:
+                        for name, p in model.named_parameters():
+                            if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
+                                pre_step_values[name] = p.detach().clone()
 
                     optim.step()
 
+                    # === Values AFTER optim.step, with delta from pre-step ===
+                    # If grad was present but delta is exactly 0 (or below dtype precision),
+                    # the update was quantized away by parameter dtype.
                     if step == 0:
                         print("\n=== Values AFTER optim.step (BEFORE zero_grad) ===")
                         for name, p in model.named_parameters():
                             if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
                                 value_str = (f"{p.item():.6f}" if p.numel() == 1
                                              else f"{p.detach().cpu().tolist()}")
-                                print(f"  {name}: value={value_str}")
+                                delta = (p.detach() - pre_step_values[name].to(p.device)).abs().max().item()
+                                # Estimate dtype precision at value 1.0 for context
+                                dtype_eps = {
+                                    torch.float32: 1.19e-7,
+                                    torch.bfloat16: 7.81e-3,
+                                    torch.float16: 9.77e-4,
+                                }.get(p.dtype, float('nan'))
+                                print(f"  {name}:")
+                                print(f"    value      = {value_str}")
+                                print(f"    dtype      = {p.dtype}")
+                                print(f"    delta      = {delta:.4e}")
+                                print(f"    dtype eps  = {dtype_eps:.2e} (smallest representable change near 1.0)")
+                                if delta == 0.0 and p.grad is not None and p.grad.abs().mean().item() > 0:
+                                    print(f"    !! delta=0 with nonzero grad → likely dtype quantization")
 
                     sched.step()
                     optim.zero_grad()
                     step += 1
 
                     # ============================================================
-                    # DIAGNOSTIC: per-step gradient check on step 1
-                    # Single forward+backward+step has happened. If the param has
-                    # a non-zero grad here and was in the optimizer at the start,
-                    # then optimizer.step() should have just moved its value.
-                    # If we see grad present but value unchanged → AdamW isn't
-                    # actually updating this object (most likely cause: param
-                    # was replaced after optimizer was built).
+                    # DIAGNOSTIC: per-step state check at step 1
                     # ============================================================
                     if step == 1:
                         print(f"\n=== Param check at step 1 (just after first optim.step) ===")
@@ -474,6 +511,7 @@ def stage2_finetune():
                                              if p.grad is not None else "None")
                                 print(f"  {name}")
                                 print(f"    same object as before training? {same_object}")
+                                print(f"    dtype:                          {p.dtype}")
                                 print(f"    max abs change from init:       {diff:.2e}")
                                 print(f"    grad magnitude:                  {grad_info}")
 
@@ -486,10 +524,6 @@ def stage2_finetune():
 
     # ============================================================
     # DIAGNOSTIC: parameter identity check (POST training)
-    # Same params, same identity test, after training.
-    # Compares against the captured pre-training state to see whether
-    # the parameter object the model holds is the same one we tracked,
-    # and whether its value moved.
     # ============================================================
     print("\n=== Parameter identity check (AFTER training) ===")
     for name, p in model.named_parameters():
@@ -506,6 +540,7 @@ def stage2_finetune():
             )
             print(f"  {name}")
             print(f"    id(p)                          = {id(p)}")
+            print(f"    dtype                          = {p.dtype}")
             print(f"    same object as before training = {same_object}")
             print(f"    current value                  = {value_str}")
             print(f"    max abs change from init       = {diff:.2e}")
@@ -531,7 +566,6 @@ def stage2_finetune():
     print(f"  Stage 2 full state dict -> {STAGE2_CKPT}")
     print(f"  To reload: load base Llama-3.2-1B, call swap_attention(m), then m.load_state_dict(torch.load(STAGE2_CKPT), strict=False)")
     wandb.finish()
-
 
 # ============================================================
 # MAIN
