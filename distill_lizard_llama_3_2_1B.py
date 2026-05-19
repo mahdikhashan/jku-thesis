@@ -605,7 +605,7 @@ def main():
 
     torch.manual_seed(SEED)
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
-    stage1_distill()
+    # stage1_distill()
     stage2_finetune()
     print("Done.")
 
