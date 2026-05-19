@@ -351,7 +351,13 @@ def stage2_finetune():
     trainable = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.AdamW(trainable, lr=STAGE2_LR, betas=ADAM_BETAS, eps=ADAM_EPS)
 
-    # DIAGNOSTIC
+    # ============================================================
+    # DIAGNOSTIC: list the params in the optimizer
+    # Confirms which Lizard params and how many LoRA params the
+    # optimizer is actually tracking. If a param is "trainable" but
+    # missing here, there's a mismatch between requires_grad and the
+    # optimizer's param list.
+    # ============================================================
     print("\n=== Parameters in optimizer ===")
     lora_count = 0
     lizard_count = 0
@@ -367,10 +373,40 @@ def stage2_finetune():
     print(f"LoRA params: {lora_count}, Lizard params: {lizard_count}")
     print(f"Total trainable: {sum(p.numel() for p in trainable):,}")
 
+    # ============================================================
+    # DIAGNOSTIC: parameter identity check (pre-training)
+    # Captures the Python object id() and value of layer-0 alpha_blend
+    # BEFORE training. This lets us verify after training that:
+    #   (a) the parameter object is the same one the optimizer holds
+    #   (b) the parameter is actually in optimizer's param groups
+    #   (c) its value has changed (or not) during training
+    # If (a) is False after training: something replaced the param
+    #   mid-training (peft, gradient checkpointing internals, etc.)
+    # If (b) is False: the optimizer is updating a ghost; model sees
+    #   the original untouched parameter.
+    # ============================================================
+    print("\n=== Parameter identity check (BEFORE training) ===")
+    tracked_params = {}  # name -> (id, initial_value, requires_grad)
+    for name, p in model.named_parameters():
+        if any(k in name for k in ('alpha_blend', 'meta_tokens')) and 'layers.0' in name:
+            in_optim = any(
+                p is op
+                for group in optim.param_groups
+                for op in group['params']
+            )
+            tracked_params[name] = (id(p), p.detach().clone(), p.requires_grad)
+            value_str = (f"{p.item():.6f}" if p.numel() == 1
+                         else f"{p.detach().cpu().tolist()}")
+            print(f"  {name}")
+            print(f"    id(p)         = {id(p)}")
+            print(f"    value         = {value_str}")
+            print(f"    requires_grad = {p.requires_grad}")
+            print(f"    in optimizer? = {in_optim}")
+
     total_steps = (len(loader) * NUM_EPOCHS) // GRAD_ACCUM
     warmup_steps = int(total_steps * WARMUP_RATIO)
     sched = get_cosine_schedule_with_warmup(optim, warmup_steps, total_steps)
-    print(f"  total optimizer steps: {total_steps}  (warmup: {warmup_steps})")
+    print(f"\n  total optimizer steps: {total_steps}  (warmup: {warmup_steps})")
 
     step = 0
     optim.zero_grad()
@@ -393,6 +429,29 @@ def stage2_finetune():
                     optim.zero_grad()
                     step += 1
 
+                    # ============================================================
+                    # DIAGNOSTIC: per-step gradient check on step 1
+                    # Single forward+backward+step has happened. If the param has
+                    # a non-zero grad here and was in the optimizer at the start,
+                    # then optimizer.step() should have just moved its value.
+                    # If we see grad present but value unchanged → AdamW isn't
+                    # actually updating this object (most likely cause: param
+                    # was replaced after optimizer was built).
+                    # ============================================================
+                    if step == 1:
+                        print(f"\n=== Param check at step 1 (just after first optim.step) ===")
+                        for name, p in model.named_parameters():
+                            if name in tracked_params:
+                                orig_id, orig_val, _ = tracked_params[name]
+                                same_object = id(p) == orig_id
+                                diff = (p.detach() - orig_val.to(p.device)).abs().max().item()
+                                grad_info = (f"{p.grad.abs().mean().item():.2e}"
+                                             if p.grad is not None else "None")
+                                print(f"  {name}")
+                                print(f"    same object as before training? {same_object}")
+                                print(f"    max abs change from init:       {diff:.2e}")
+                                print(f"    grad magnitude:                  {grad_info}")
+
                     if step % LOG_EVERY == 0:
                         lr = sched.get_last_lr()[0]
                         print(f"[stage2] epoch {epoch} step {step}/{total_steps} loss {loss.item():.4f} lr {lr:.2e}")
@@ -400,7 +459,34 @@ def stage2_finetune():
     except KeyboardInterrupt:
         print(f"\n!! Interrupted at step {step}. Running diagnostics...")
 
-    # --- Diagnostic prints always run, even after Ctrl+C ---
+    # ============================================================
+    # DIAGNOSTIC: parameter identity check (POST training)
+    # Same params, same identity test, after training.
+    # Compares against the captured pre-training state to see whether
+    # the parameter object the model holds is the same one we tracked,
+    # and whether its value moved.
+    # ============================================================
+    print("\n=== Parameter identity check (AFTER training) ===")
+    for name, p in model.named_parameters():
+        if name in tracked_params:
+            orig_id, orig_val, _ = tracked_params[name]
+            same_object = id(p) == orig_id
+            value_str = (f"{p.item():.6f}" if p.numel() == 1
+                         else f"{p.detach().cpu().tolist()}")
+            diff = (p.detach() - orig_val.to(p.device)).abs().max().item()
+            in_optim = any(
+                p is op
+                for group in optim.param_groups
+                for op in group['params']
+            )
+            print(f"  {name}")
+            print(f"    id(p)                          = {id(p)}")
+            print(f"    same object as before training = {same_object}")
+            print(f"    current value                  = {value_str}")
+            print(f"    max abs change from init       = {diff:.2e}")
+            print(f"    still in optimizer?            = {in_optim}")
+
+    # --- Existing prints retained ---
     print("\n=== Lizard params BEFORE merge_and_unload ===")
     for i in [0, 5, 10, 15]:
         attn = model.base_model.model.model.layers[i].self_attn
