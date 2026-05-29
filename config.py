@@ -29,8 +29,7 @@ WARMUP_RATIO = 0.1
 LOG_EVERY = 1 #25
 
 # Stage-specific
-STAGE1_LR = 1e-5
-# STAGE1_LR = 1e-3
+STAGE1_LR = 1e-3
 STAGE2_LR = 5e-4
 
 # LoRA (Stage 2 only)
