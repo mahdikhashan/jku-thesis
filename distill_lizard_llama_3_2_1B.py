@@ -238,7 +238,6 @@ def stage1_distill():
             "seq_len": SEQ_LEN, "feature_dim": FEATURE_DIM,
             "window_size": WINDOW_SIZE, "meta_tokens": NUM_META_TOKENS,
             "grad_checkpointing": USE_GRADIENT_CHECKPOINTING_STAGE1,
-            "loss": "frobenius_norm_squared",   # document what loss we use
         },
     )
 
@@ -283,6 +282,7 @@ def stage1_distill():
             x = args[0] if args else kwargs["hidden_states"]
             teacher_inputs[idx] = x.detach()
             teacher_outputs[idx] = (output[0] if isinstance(output, tuple) else output).detach()
+
         return hook
 
     for i, layer in enumerate(teacher.model.layers):
@@ -323,25 +323,7 @@ def stage1_distill():
                 x = teacher_inputs[i]
                 y_target = teacher_outputs[i]
                 y_pred, _ = layer.self_attn(x)
-
-                # ============================================================
-                # Paper-faithful loss: L_MSE = (1/N) * sum_l ||Y_softmax^l - Y_lizard^l||_F^2
-                #
-                # The Frobenius norm squared is the sum of squared element-wise
-                # differences — NO division by number of elements.
-                #
-                # Previously used F.mse_loss (reduction='mean') which divides
-                # by num_elements = B*L*d = ~4M. That made gradients ~4M times
-                # smaller than the paper's formula, severely under-training
-                # the Lizard parameters during Stage 1.
-                #
-                # NOTE: because gradients are now ~4M times larger, STAGE1_LR
-                # must be reduced accordingly. Recommended: set STAGE1_LR=1e-5
-                # in config.py (was 1e-2 with the mean-MSE loss).
-                # ============================================================
-                diff = y_pred.float() - y_target.float()
-                layer_loss = (diff ** 2).sum() / n_layers   # Frobenius norm² / N
-
+                layer_loss = F.mse_loss(y_pred.float(), y_target.float()) / n_layers
                 (layer_loss / GRAD_ACCUM).backward()
                 total_loss += layer_loss.item()
 
@@ -354,18 +336,16 @@ def stage1_distill():
 
                 if step % LOG_EVERY == 0:
                     lr = sched.get_last_lr()[0]
-                    print(f"[stage1] epoch {epoch} step {step}/{total_steps} "
-                          f"loss {total_loss:.4f} lr {lr:.2e}")
-                    wandb.log({
-                        "stage1/loss": total_loss,
-                        "stage1/lr": lr,
-                        "stage1/step": step,
-                    })
+                    print(f"[stage1] epoch {epoch} step {step}/{total_steps} loss {total_loss:.5f} lr {lr:.2e}")
+                    wandb.log({"stage1/loss": total_loss, "stage1/lr": lr, "stage1/step": step})
 
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
     save_trainable(student, STAGE1_CKPT)
     print(f"  Stage 1 checkpoint -> {STAGE1_CKPT}")
 
+    # Verify training actually updated the small params (sanity check
+    # for the bf16-bug fix). With fp32, alpha_blend should drift from
+    # exactly 1.0 to something like 0.92 / 1.08 / etc. per layer.
     print("\n=== Stage 1 final Lizard values ===")
     for i in [0, 5, 10, 15]:
         attn = student.model.layers[i].self_attn
