@@ -137,6 +137,7 @@ def load_trainable(model, path: Path):
         print(f"[warn] unexpected keys in checkpoint: {unexpected[:3]}...")
     return model
 
+
 # ============================================================
 # DATA
 # ============================================================
@@ -153,19 +154,7 @@ class PackedDataset(Dataset):
 
 
 def build_dataloader(tokenizer) -> DataLoader:
-    """Tokenize cleaned Alpaca and pack into SEQ_LEN chunks.
-
-    Packing strategy (matches paper):
-      - Format each example with the Alpaca instruction template.
-      - Tokenize, then concatenate ALL examples into one continuous token
-        stream, separated by EOS tokens (document boundary markers).
-      - Chunk the stream into SEQ_LEN blocks. Only the final partial block
-        is dropped, so token waste is minimal (~one block, not one per doc).
-
-    The EOS separator both (a) marks document boundaries so the model learns
-    where examples end, and (b) prevents spurious cross-document attention
-    patterns from being treated as real signal.
-    """
+    """Tokenize cleaned Alpaca and pack into SEQ_LEN chunks."""
     raw = (
         load_dataset(DATASET_NAME, split="train")
         .shuffle(seed=SEED)
@@ -177,50 +166,32 @@ def build_dataloader(tokenizer) -> DataLoader:
             text = (
                 f"### Instruction:\n{ex['instruction']}\n\n"
                 f"### Input:\n{ex['input']}\n\n"
-                f"### Response:\n{ex['output']}"
+                f"### Response:\n{ex['output']}{tokenizer.eos_token}"
             )
         else:
             text = (
                 f"### Instruction:\n{ex['instruction']}\n\n"
-                f"### Response:\n{ex['output']}"
+                f"### Response:\n{ex['output']}{tokenizer.eos_token}"
             )
         return {"text": text}
 
     raw = raw.map(format_example, remove_columns=raw.column_names)
 
     def tok_fn(batch):
-        # No special tokens added by tokenizer; we add EOS explicitly as the
-        # document separator during concatenation below.
         return tokenizer(batch["text"], add_special_tokens=False, truncation=False)
 
     tokenized = raw.map(tok_fn, batched=True, remove_columns=["text"])
 
-    # Concatenate all documents into one continuous stream, EOS-separated.
-    eos_id = tokenizer.eos_token_id
     all_ids = []
     for row in tokenized:
         all_ids.extend(row["input_ids"])
-        all_ids.append(eos_id)   # document separator — no tokens wasted
-
-    # Chunk into SEQ_LEN blocks; drop only the final partial block.
     n_chunks = len(all_ids) // SEQ_LEN
     all_ids = all_ids[: n_chunks * SEQ_LEN]
     chunks = torch.tensor(all_ids, dtype=torch.long).view(n_chunks, SEQ_LEN)
+    print(f"  packed {n_chunks} sequences of {SEQ_LEN} tokens (~{n_chunks * SEQ_LEN / 1e6:.1f}M total)")
 
-    # ---- Token accounting (verify against paper's 20M per stage) ----
-    tokens_per_epoch = n_chunks * SEQ_LEN
-    total_training_tokens = tokens_per_epoch * NUM_EPOCHS
-    paper_target = 20_000_000
-    print(f"  examples used:         {len(tokenized):,}")
-    print(f"  packed sequences:      {n_chunks:,} × {SEQ_LEN} tokens")
-    print(f"  tokens per epoch:      {tokens_per_epoch:,}")
-    print(f"  epochs:                {NUM_EPOCHS}")
-    print(f"  total training tokens: {total_training_tokens:,}")
-    print(f"  paper target:          {paper_target:,}  "
-          f"({100 * total_training_tokens / paper_target:.0f}% coverage)")
+    return DataLoader(PackedDataset(chunks), batch_size=MICRO_BATCH, shuffle=True, drop_last=True)
 
-    return DataLoader(PackedDataset(chunks), batch_size=MICRO_BATCH,
-                      shuffle=True, drop_last=True)
 
 # ============================================================
 # STAGE 1: ATTENTION APPROXIMATION (MSE)
