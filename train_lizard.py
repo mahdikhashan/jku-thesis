@@ -8,11 +8,12 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, get_cosine_schedul
 from peft import LoraConfig, get_peft_model
 from tqdm import tqdm
 import gc
+import math
 import wandb
 
 
 # ==========================================
-# 1. Lizard Architecture
+# 1. Lizard Architecture (With Scaling Fix)
 # ==========================================
 class LizardAttention(nn.Module):
     def __init__(self, hidden_size, num_heads, window_size=128, num_meta_tokens=4):
@@ -64,6 +65,9 @@ class LizardAttention(nn.Module):
             k_i, v_i = k_phi[:, i].unsqueeze(-1), v[:, i].unsqueeze(-2)
             S = g_i * S + torch.matmul(k_i, v_i)
             y_gate[:, i] = torch.matmul(q_phi[:, i].unsqueeze(-2), S).squeeze(-2)
+
+        # Scale GLA outputs to prevent magnitude explosion across the sequence
+        y_gate = y_gate * (1.0 / (self.head_dim ** 0.5))
 
         # --- Anchor Window Attention Path ---
         attn_scores = torch.einsum('bqhd,bkhd->bhqk', q, k) / (self.head_dim ** 0.5)
@@ -147,18 +151,19 @@ def prepare_alpaca_packed_dataloader(tokenizer, seq_len, batch_size):
 
 
 # ==========================================
-# 3. Training Loops with wandb Tracking
+# 3. Training Loops (With Clipping & Global Tracking)
 # ==========================================
-def train_stage_1(teacher, student, dataloader, optimizer, device, grad_accum_steps=4):
+def train_stage_1(teacher, student, dataloader, optimizer, device, epoch, grad_accum_steps=4):
     """Stage 1: Distillation Loop"""
     teacher.eval()
     student.train()
     total_loss = 0
 
-    pbar = tqdm(dataloader, desc="Stage 1: Distillation")
+    pbar = tqdm(dataloader, desc=f"Stage 1: Epoch {epoch + 1}")
     optimizer.zero_grad()
 
     for step, batch in enumerate(pbar):
+        global_step = epoch * len(dataloader) + step
         input_ids = batch['input_ids'].to(device)
 
         with torch.no_grad():
@@ -174,10 +179,9 @@ def train_stage_1(teacher, student, dataloader, optimizer, device, grad_accum_st
 
         loss = loss / (len(teacher_outputs.hidden_states) - 1)
 
-        # Track iteration metrics (raw unscaled values)
         current_lr = optimizer.param_groups[0]['lr']
         wandb.log({
-            "stage1/iteration": step,
+            "stage1/global_step": global_step,
             "stage1/loss": loss.item(),
             "stage1/lr": current_lr
         })
@@ -186,6 +190,8 @@ def train_stage_1(teacher, student, dataloader, optimizer, device, grad_accum_st
         loss_scaled.backward()
 
         if (step + 1) % grad_accum_steps == 0 or (step + 1) == len(dataloader):
+            # Gradient clipping to prevent recurrent explosion spikes
+            torch.nn.utils.clip_grad_norm_(student.parameters(), max_norm=1.0)
             optimizer.step()
             optimizer.zero_grad()
 
@@ -195,25 +201,25 @@ def train_stage_1(teacher, student, dataloader, optimizer, device, grad_accum_st
     return total_loss / len(dataloader)
 
 
-def train_stage_2(peft_model, dataloader, optimizer, scheduler, device, grad_accum_steps=4):
+def train_stage_2(peft_model, dataloader, optimizer, scheduler, device, epoch, grad_accum_steps=4):
     """Stage 2: LoRA Fine-Tuning Loop"""
     peft_model.train()
     total_loss = 0
 
-    pbar = tqdm(dataloader, desc="Stage 2: LoRA Alignment")
+    pbar = tqdm(dataloader, desc=f"Stage 2: Epoch {epoch + 1}")
     optimizer.zero_grad()
 
     for step, batch in enumerate(pbar):
+        global_step = epoch * len(dataloader) + step
         input_ids = batch['input_ids'].to(device)
         labels = batch['labels'].to(device)
 
         outputs = peft_model(input_ids=input_ids, labels=labels)
         loss = outputs.loss
 
-        # Track iteration metrics (raw unscaled values)
         current_lr = optimizer.param_groups[0]['lr']
         wandb.log({
-            "stage2/iteration": step,
+            "stage2/global_step": global_step,
             "stage2/loss": loss.item(),
             "stage2/lr": current_lr
         })
@@ -222,6 +228,8 @@ def train_stage_2(peft_model, dataloader, optimizer, scheduler, device, grad_acc
         loss_scaled.backward()
 
         if (step + 1) % grad_accum_steps == 0 or (step + 1) == len(dataloader):
+            # Gradient clipping to stabilize LoRA parameter updates
+            torch.nn.utils.clip_grad_norm_(peft_model.parameters(), max_norm=1.0)
             optimizer.step()
             scheduler.step()
             optimizer.zero_grad()
@@ -244,18 +252,20 @@ def main():
     seq_len = 2048
     batch_size = 1
     grad_accum_steps = 4
+    num_epochs = 2  # Set to run both training stages for 2 complete epochs
 
-    # Initialize wandb Project Tracker
     wandb.init(
         project="lizard-llama-3.2-distillation",
-        name="lizard-alpaca-cleaned-run",
+        name="lizard-stable-2epoch-run",
         config={
             "base_model": model_id,
             "dataset": "yahma/alpaca-cleaned",
             "sequence_length": seq_len,
+            "epochs": num_epochs,
             "effective_batch_size": batch_size * grad_accum_steps,
             "stage1_base_lr": 3e-4,
-            "stage2_base_lr": 1e-4
+            "stage2_base_lr": 1e-4,
+            "grad_clip_max_norm": 1.0
         }
     )
 
@@ -275,12 +285,14 @@ def main():
 
     dataloader = prepare_alpaca_packed_dataloader(tokenizer, seq_len, batch_size)
 
-    # --- STAGE 1 ---
+    # --- STAGE 1 (Distillation) ---
     print("\n--- Starting Stage 1: Attention Distillation ---")
     optimizer_s1 = optim.AdamW(student.parameters(), lr=3e-4)
-    train_stage_1(teacher, student, dataloader, optimizer_s1, device, grad_accum_steps)
 
-    print(f"\nSaving Stage 1 distilled model to {stage_1_save_path}...")
+    for epoch in range(num_epochs):
+        train_stage_1(teacher, student, dataloader, optimizer_s1, device, epoch, grad_accum_steps)
+
+    print(f"\nSaving Stage 1 distilled model weights to {stage_1_save_path}...")
     torch.save(student.state_dict(), f"{stage_1_save_path}_weights.pth")
     tokenizer.save_pretrained(stage_1_save_path)
 
@@ -289,7 +301,7 @@ def main():
     torch.cuda.empty_cache()
     gc.collect()
 
-    # --- STAGE 2 ---
+    # --- STAGE 2 (LoRA Fine-Tuning) ---
     print("\n--- Starting Stage 2: LoRA Fine-Tuning ---")
     lora_config = LoraConfig(
         r=8,
@@ -304,17 +316,22 @@ def main():
     peft_student.print_trainable_parameters()
 
     optimizer_s2 = optim.AdamW(peft_student.parameters(), lr=1e-4)
+
+    # Calculate exact total step updates across 2 epochs for the Cosine Scheduler
+    steps_per_epoch = math.ceil(len(dataloader) / grad_accum_steps)
+    total_scheduler_steps = steps_per_epoch * num_epochs
+
     scheduler = get_cosine_schedule_with_warmup(
-        optimizer_s2, num_warmup_steps=100, num_training_steps=len(dataloader)
+        optimizer_s2, num_warmup_steps=100, num_training_steps=total_scheduler_steps
     )
 
-    train_stage_2(peft_student, dataloader, optimizer_s2, scheduler, device, grad_accum_steps)
+    for epoch in range(num_epochs):
+        train_stage_2(peft_student, dataloader, optimizer_s2, scheduler, device, epoch, grad_accum_steps)
 
     print(f"\nTraining complete. Saving final LoRA adapters to {stage_2_save_path}...")
     peft_student.save_pretrained(stage_2_save_path)
     tokenizer.save_pretrained(stage_2_save_path)
 
-    # Close the wandb session
     wandb.finish()
 
 
