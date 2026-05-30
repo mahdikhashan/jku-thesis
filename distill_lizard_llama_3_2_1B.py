@@ -126,12 +126,7 @@ class PackedDataset(Dataset):
 
 
 def build_dataloader(tokenizer) -> DataLoader:
-    """Tokenize cleaned Alpaca into one EOS-separated stream, chunked to SEQ_LEN.
-
-    Concatenating all documents and slicing into fixed blocks wastes only the
-    final partial block, rather than one partial block per document. The EOS
-    between documents marks boundaries and prevents cross-document attention.
-    """
+    """Tokenize cleaned Alpaca and pack into SEQ_LEN chunks."""
     raw = (
         load_dataset(DATASET_NAME, split="train")
         .shuffle(seed=SEED)
@@ -143,12 +138,12 @@ def build_dataloader(tokenizer) -> DataLoader:
             text = (
                 f"### Instruction:\n{ex['instruction']}\n\n"
                 f"### Input:\n{ex['input']}\n\n"
-                f"### Response:\n{ex['output']}"
+                f"### Response:\n{ex['output']}{tokenizer.eos_token}"
             )
         else:
             text = (
                 f"### Instruction:\n{ex['instruction']}\n\n"
-                f"### Response:\n{ex['output']}"
+                f"### Response:\n{ex['output']}{tokenizer.eos_token}"
             )
         return {"text": text}
 
@@ -159,21 +154,16 @@ def build_dataloader(tokenizer) -> DataLoader:
         remove_columns=["text"],
     )
 
-    eos_id = tokenizer.eos_token_id
     all_ids = []
     for row in tokenized:
         all_ids.extend(row["input_ids"])
-        all_ids.append(eos_id)
 
     n_chunks = len(all_ids) // SEQ_LEN
     all_ids = all_ids[: n_chunks * SEQ_LEN]
     chunks = torch.tensor(all_ids, dtype=torch.long).view(n_chunks, SEQ_LEN)
 
-    total_tokens = n_chunks * SEQ_LEN * NUM_EPOCHS
-    logger.info(
-        "packed %d sequences x %d tokens; %d total tokens over %d epochs (%.0f%% of 20M paper budget)",
-        n_chunks, SEQ_LEN, total_tokens, NUM_EPOCHS, 100 * total_tokens / 20_000_000,
-    )
+    logger.info("packed %d sequences of %d tokens (~%.1fM total)",
+                n_chunks, SEQ_LEN, n_chunks * SEQ_LEN / 1e6)
 
     return DataLoader(
         PackedDataset(chunks), batch_size=MICRO_BATCH, shuffle=True, drop_last=True
