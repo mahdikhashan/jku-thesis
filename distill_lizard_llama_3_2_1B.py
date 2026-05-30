@@ -1,31 +1,26 @@
 """
-Lizard linearization for Llama-3.2-1B.
+Lizard linearization for Llama-3.2-1B (arXiv:2507.09025).
 
-Single-script reproduction of both training stages from arXiv:2507.09025.
-  Stage 1: MSE distillation of softmax attention outputs into Lizard attention.
-  Stage 2: LoRA + Lizard params fine-tune with standard language-modeling loss.
+Two training stages:
+  Stage 1  MSE distillation of softmax attention outputs into Lizard attention,
+           trained per-layer on the teacher's own (input, output) pairs.
+  Stage 2  LoRA + Lizard-parameter fine-tune with language-modeling loss.
 
-Requires CUDA GPU with >=16 GB VRAM. Uses transformers, peft, datasets, wandb.
+Mixed precision: the base model runs in bf16; the small Lizard parameters
+(meta_tokens, alpha_blend, phi_q, phi_k, W_gamma) are upcast to fp32 because
+AdamW updates on them (~5e-4) are smaller than the bf16 step size near unit
+magnitude (~7.8e-3) and would otherwise be quantized to no-ops.
 
-Stage 1 trains each LizardAttention layer-by-layer on the teacher's own
-(input, output) pairs to avoid hidden-state drift across layers. The student
-model is never run end-to-end during Stage 1; only its self_attn modules are.
-
-Mixed-precision strategy:
-  - Base model weights, activations, attention scores: bf16 (memory savings)
-  - Lizard auxiliary params (meta_tokens, alpha_blend, phi_q, phi_k, W_gamma):
-    fp32 to prevent AdamW updates from being quantized away. The bf16 step
-    size near unit magnitudes is ~7.8e-3, larger than typical AdamW updates
-    (~5e-4), which would cause silent no-ops on small parameters.
-  - LoRA adapters: fp32 (peft does this automatically).
+Requires a CUDA GPU with >= 16 GB VRAM.
 """
+
 import os
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
+import logging
 from pathlib import Path
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 from transformers import (
@@ -38,75 +33,55 @@ from peft import LoraConfig, get_peft_model
 import wandb
 
 from config import *
-
 from lizard_attention import LizardAttention
 
 
-# ============================================================
-# MEMORY KNOBS
-# ============================================================
-def maybe_enable_gradient_checkpointing(model, enable: bool, stage_name: str):
-    """Enable gradient checkpointing if requested. Order matters with peft."""
+logger = logging.getLogger("lizard")
+
+
+# ------------------------------------------------------------------
+# Setup helpers
+# ------------------------------------------------------------------
+def enable_gradient_checkpointing(model, enable: bool, stage: str):
+    """Turn on gradient checkpointing. Must run after peft wrapping in stage 2."""
     if not enable:
-        print(f"  [{stage_name}] gradient checkpointing: OFF")
+        logger.info("[%s] gradient checkpointing: off", stage)
         return model
 
     if hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
-
-    reentrant_value = False
     model.gradient_checkpointing_enable(
-        gradient_checkpointing_kwargs={"use_reentrant": reentrant_value}
+        gradient_checkpointing_kwargs={"use_reentrant": False}
     )
-    print(f"  [{stage_name}] gradient checkpointing: ON (use_reentrant={reentrant_value})")
+    logger.info("[%s] gradient checkpointing: on", stage)
     return model
 
 
-# ============================================================
-# MIXED-PRECISION HELPER
-# ============================================================
 def upcast_lizard_params_to_fp32(model) -> int:
-    """Cast Lizard auxiliary parameters from bf16 to fp32.
+    """Cast trainable Lizard parameters to fp32. Returns how many were changed.
 
-    Why this matters:
-      AdamW update magnitudes (typically 1e-4 to 1e-3) are smaller than
-      bf16's smallest representable difference near unit values (~7.8e-3).
-      Without this cast, optim.step() silently no-ops on small parameters
-      like alpha_blend (scalar) and meta_tokens (4 elements), even though
-      gradients flow correctly and the optimizer runs.
-
-      fp32 has ~1.2e-7 precision at unit magnitudes — every AdamW update
-      is visible.
-
-    Memory cost: 80 params × ~6 KB avg = ~480 KB. Plus 2× for Adam (m, v)
-    state, so ~1.5 MB total. Negligible compared to the model size.
-
-    This mirrors the pattern peft uses for LoRA adapters, which are always
-    fp32 regardless of base model dtype.
+    bf16's resolution near unit magnitude (~7.8e-3) is coarser than a typical
+    AdamW step (~5e-4), so updates to small bf16 params silently round away.
+    fp32 (~1.2e-7 resolution) makes every update land. Cost is ~1.5 MB including
+    optimizer state.
     """
-    upcast_count = 0
+    count = 0
     for name, p in model.named_parameters():
-        if p.requires_grad and any(k in name for k in LIZARD_PARAM_KEYS):
-            if p.dtype != torch.float32:
-                p.data = p.data.float()
-                upcast_count += 1
-    return upcast_count
+        if p.requires_grad and is_lizard_param(name) and p.dtype != torch.float32:
+            p.data = p.data.float()
+            count += 1
+    return count
 
 
-# ============================================================
-# MODEL SURGERY HELPERS
-# ============================================================
 def swap_attention(model):
-    """Replace every LlamaAttention with LizardAttention; copy projection weights."""
+    """Replace each LlamaAttention with LizardAttention, copying projection weights."""
     for layer_idx, layer in enumerate(model.model.layers):
         orig = layer.self_attn
-        device = orig.q_proj.weight.device
-        dtype = orig.q_proj.weight.dtype
-        lizard = LizardAttention(model.config, layer_idx).to(device=device, dtype=dtype)
-        lizard.q_proj.weight.data.copy_(orig.q_proj.weight.data)
-        lizard.k_proj.weight.data.copy_(orig.k_proj.weight.data)
-        lizard.v_proj.weight.data.copy_(orig.v_proj.weight.data)
-        lizard.o_proj.weight.data.copy_(orig.o_proj.weight.data)
+        lizard = LizardAttention(model.config, layer_idx).to(
+            device=orig.q_proj.weight.device, dtype=orig.q_proj.weight.dtype
+        )
+        for proj in ("q_proj", "k_proj", "v_proj", "o_proj"):
+            getattr(lizard, proj).weight.data.copy_(getattr(orig, proj).weight.data)
         layer.self_attn = lizard
     return model
 
@@ -116,7 +91,7 @@ def is_lizard_param(name: str) -> bool:
 
 
 def freeze_base_keep_lizard(model):
-    """Freeze everything except Lizard-added parameters."""
+    """Freeze every parameter except the Lizard-added ones."""
     for p in model.parameters():
         p.requires_grad = False
     for name, p in model.named_parameters():
@@ -132,15 +107,24 @@ def save_trainable(model, path: Path):
 
 def load_trainable(model, path: Path):
     sd = torch.load(path, map_location="cpu")
-    missing, unexpected = model.load_state_dict(sd, strict=False)
+    _, unexpected = model.load_state_dict(sd, strict=False)
     if unexpected:
-        print(f"[warn] unexpected keys in checkpoint: {unexpected[:3]}...")
+        logger.warning("unexpected keys when loading %s: %s ...", path, unexpected[:3])
     return model
 
 
-# ============================================================
-# DATA
-# ============================================================
+def log_lizard_values(model, label: str, layers=(0, 5, 10, 15)):
+    """Print per-layer alpha_blend and meta_tokens. Confirms params actually moved."""
+    logger.info("=== %s ===", label)
+    for i in layers:
+        attn = model.model.layers[i].self_attn
+        meta = [f"{m:.4f}" for m in attn.meta_tokens.detach().cpu()]
+        logger.info("layer %2d: alpha=%.6f  meta=%s", i, attn.alpha_blend.item(), meta)
+
+
+# ------------------------------------------------------------------
+# Data
+# ------------------------------------------------------------------
 class PackedDataset(Dataset):
     def __init__(self, ids: torch.Tensor):
         self.ids = ids
@@ -154,7 +138,12 @@ class PackedDataset(Dataset):
 
 
 def build_dataloader(tokenizer) -> DataLoader:
-    """Tokenize cleaned Alpaca and pack into SEQ_LEN chunks."""
+    """Tokenize cleaned Alpaca into one EOS-separated stream, chunked to SEQ_LEN.
+
+    Concatenating all documents and slicing into fixed blocks wastes only the
+    final partial block, rather than one partial block per document. The EOS
+    between documents marks boundaries and prevents cross-document attention.
+    """
     raw = (
         load_dataset(DATASET_NAME, split="train")
         .shuffle(seed=SEED)
@@ -166,40 +155,48 @@ def build_dataloader(tokenizer) -> DataLoader:
             text = (
                 f"### Instruction:\n{ex['instruction']}\n\n"
                 f"### Input:\n{ex['input']}\n\n"
-                f"### Response:\n{ex['output']}{tokenizer.eos_token}"
+                f"### Response:\n{ex['output']}"
             )
         else:
             text = (
                 f"### Instruction:\n{ex['instruction']}\n\n"
-                f"### Response:\n{ex['output']}{tokenizer.eos_token}"
+                f"### Response:\n{ex['output']}"
             )
         return {"text": text}
 
     raw = raw.map(format_example, remove_columns=raw.column_names)
+    tokenized = raw.map(
+        lambda b: tokenizer(b["text"], add_special_tokens=False, truncation=False),
+        batched=True,
+        remove_columns=["text"],
+    )
 
-    def tok_fn(batch):
-        return tokenizer(batch["text"], add_special_tokens=False, truncation=False)
-
-    tokenized = raw.map(tok_fn, batched=True, remove_columns=["text"])
-
+    eos_id = tokenizer.eos_token_id
     all_ids = []
     for row in tokenized:
         all_ids.extend(row["input_ids"])
+        all_ids.append(eos_id)
+
     n_chunks = len(all_ids) // SEQ_LEN
     all_ids = all_ids[: n_chunks * SEQ_LEN]
     chunks = torch.tensor(all_ids, dtype=torch.long).view(n_chunks, SEQ_LEN)
-    print(f"  packed {n_chunks} sequences of {SEQ_LEN} tokens (~{n_chunks * SEQ_LEN / 1e6:.1f}M total)")
 
-    return DataLoader(PackedDataset(chunks), batch_size=MICRO_BATCH, shuffle=True, drop_last=True)
+    total_tokens = n_chunks * SEQ_LEN * NUM_EPOCHS
+    logger.info(
+        "packed %d sequences x %d tokens; %d total tokens over %d epochs (%.0f%% of 20M paper budget)",
+        n_chunks, SEQ_LEN, total_tokens, NUM_EPOCHS, 100 * total_tokens / 20_000_000,
+    )
+
+    return DataLoader(
+        PackedDataset(chunks), batch_size=MICRO_BATCH, shuffle=True, drop_last=True
+    )
 
 
-# ============================================================
-# STAGE 1: ATTENTION APPROXIMATION (MSE)
-# ============================================================
+# ------------------------------------------------------------------
+# Stage 1: attention distillation
+# ------------------------------------------------------------------
 def stage1_distill():
-    print("=" * 60)
-    print("STAGE 1: ATTENTION APPROXIMATION (MSE)")
-    print("=" * 60)
+    logger.info("STAGE 1: attention distillation (MSE)")
 
     wandb.init(
         project=WANDB_PROJECT,
@@ -208,58 +205,43 @@ def stage1_distill():
             "stage": 1, "model": MODEL_NAME, "lr": STAGE1_LR, "epochs": NUM_EPOCHS,
             "seq_len": SEQ_LEN, "feature_dim": FEATURE_DIM,
             "window_size": WINDOW_SIZE, "meta_tokens": NUM_META_TOKENS,
-            "grad_checkpointing": USE_GRADIENT_CHECKPOINTING_STAGE1,
         },
     )
 
-    # ---- Teacher: frozen, all softmax ----
     teacher = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=DTYPE).to(DEVICE)
     teacher.eval()
     for p in teacher.parameters():
         p.requires_grad = False
 
-    # ---- Student: same weights, attention swapped to Lizard ----
     student = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=DTYPE).to(DEVICE)
     student = swap_attention(student)
     student = freeze_base_keep_lizard(student)
 
-    # ============================================================
-    # Upcast Lizard params to fp32 BEFORE building the optimizer.
-    # See upcast_lizard_params_to_fp32 docstring for the math behind
-    # why bf16 quantization breaks AdamW updates on these small params.
-    # ============================================================
-    upcast_count = upcast_lizard_params_to_fp32(student)
-    print(f"  upcast {upcast_count} Lizard parameters to fp32")
+    n_upcast = upcast_lizard_params_to_fp32(student)
+    logger.info("upcast %d Lizard parameters to fp32", n_upcast)
 
-    # Verify dtypes after upcast
-    attn = student.model.layers[0].self_attn
-    print(f"  layer-0 alpha_blend dtype: {attn.alpha_blend.dtype}")
-    print(f"  layer-0 meta_tokens dtype: {attn.meta_tokens.dtype}")
-
-    student = maybe_enable_gradient_checkpointing(
+    student = enable_gradient_checkpointing(
         student, USE_GRADIENT_CHECKPOINTING_STAGE1, "stage1"
     )
 
     n_train = sum(p.numel() for p in student.parameters() if p.requires_grad)
     n_total = sum(p.numel() for p in student.parameters())
-    print(f"  trainable: {n_train:,}  /  total: {n_total:,}  ({100 * n_train / n_total:.3f}%)")
+    logger.info("trainable %d / %d (%.3f%%)", n_train, n_total, 100 * n_train / n_total)
 
-    # ---- Hook teacher: capture self_attn (input, output) per layer ----
-    teacher_inputs = {}
-    teacher_outputs = {}
+    # Capture each teacher attention layer's (input, output) via forward hooks.
+    teacher_inputs, teacher_outputs = {}, {}
 
     def make_hook(idx):
         def hook(module, args, kwargs, output):
             x = args[0] if args else kwargs["hidden_states"]
             teacher_inputs[idx] = x.detach()
-            teacher_outputs[idx] = (output[0] if isinstance(output, tuple) else output).detach()
-
+            out = output[0] if isinstance(output, tuple) else output
+            teacher_outputs[idx] = out.detach()
         return hook
 
     for i, layer in enumerate(teacher.model.layers):
         layer.self_attn.register_forward_hook(make_hook(i), with_kwargs=True)
 
-    # ---- Tokenizer + data ----
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"
@@ -267,13 +249,12 @@ def stage1_distill():
     tokenizer.save_pretrained(TOKENIZER_DIR)
     loader = build_dataloader(tokenizer)
 
-    # ---- Optimizer + scheduler ----
     trainable = [p for p in student.parameters() if p.requires_grad]
     optim = torch.optim.AdamW(trainable, lr=STAGE1_LR, betas=ADAM_BETAS, eps=ADAM_EPS)
     total_steps = (len(loader) * NUM_EPOCHS) // GRAD_ACCUM
     warmup_steps = int(total_steps * WARMUP_RATIO)
     sched = get_cosine_schedule_with_warmup(optim, warmup_steps, total_steps)
-    print(f"  total optimizer steps: {total_steps}  (warmup: {warmup_steps})")
+    logger.info("optimizer steps: %d (warmup %d)", total_steps, warmup_steps)
 
     n_layers = len(student.model.layers)
     step = 0
@@ -285,16 +266,20 @@ def stage1_distill():
 
             teacher_inputs.clear()
             teacher_outputs.clear()
-
             with torch.no_grad():
                 teacher(input_ids=input_ids, use_cache=False)
 
+            # Train each attention module on the teacher's own layer input.
+            # Per-element mean MSE averaged over layers. (The literal Frobenius
+            # norm^2 from the paper trained worse here: its per-layer magnitude
+            # imbalance let high-magnitude layers dominate the gradient. Mean MSE
+            # normalizes per element and gave better attention matching and eval.)
+            # Layers are independent, so per-layer backward equals a summed
+            # backward but keeps peak memory flat.
             total_loss = 0.0
             for i, layer in enumerate(student.model.layers):
-                x = teacher_inputs[i]
-                y_target = teacher_outputs[i]
-                y_pred, _ = layer.self_attn(x)
-                layer_loss = F.mse_loss(y_pred.float(), y_target.float()) / n_layers
+                y_pred, _ = layer.self_attn(teacher_inputs[i])
+                layer_loss = F.mse_loss(y_pred.float(), teacher_outputs[i].float()) / n_layers
                 (layer_loss / GRAD_ACCUM).backward()
                 total_loss += layer_loss.item()
 
@@ -307,35 +292,27 @@ def stage1_distill():
 
                 if step % LOG_EVERY == 0:
                     lr = sched.get_last_lr()[0]
-                    print(f"[stage1] epoch {epoch} step {step}/{total_steps} loss {total_loss:.5f} lr {lr:.2e}")
+                    logger.info(
+                        "[stage1] epoch %d step %d/%d loss %.2f lr %.2e",
+                        epoch, step, total_steps, total_loss, lr,
+                    )
                     wandb.log({"stage1/loss": total_loss, "stage1/lr": lr, "stage1/step": step})
 
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
     save_trainable(student, STAGE1_CKPT)
-    print(f"  Stage 1 checkpoint -> {STAGE1_CKPT}")
-
-    # Verify training actually updated the small params (sanity check
-    # for the bf16-bug fix). With fp32, alpha_blend should drift from
-    # exactly 1.0 to something like 0.92 / 1.08 / etc. per layer.
-    print("\n=== Stage 1 final Lizard values ===")
-    for i in [0, 5, 10, 15]:
-        attn = student.model.layers[i].self_attn
-        print(f"Layer {i}: alpha={attn.alpha_blend.item():.6f}, "
-              f"meta={[f'{m:.4f}' for m in attn.meta_tokens.detach().cpu()]}")
+    logger.info("stage 1 checkpoint -> %s", STAGE1_CKPT)
+    log_lizard_values(student, "Stage 1 final Lizard values")
 
     wandb.finish()
-
     del teacher
     torch.cuda.empty_cache()
 
 
-# ============================================================
-# STAGE 2: LANGUAGE-MODELING FINE-TUNE (LoRA + Lizard params)
-# ============================================================
+# ------------------------------------------------------------------
+# Stage 2: LoRA + Lizard fine-tune
+# ------------------------------------------------------------------
 def stage2_finetune():
-    print("=" * 60)
-    print("STAGE 2: LANGUAGE-MODELING FINE-TUNE")
-    print("=" * 60)
+    logger.info("STAGE 2: language-modeling fine-tune (LoRA + Lizard)")
 
     wandb.init(
         project=WANDB_PROJECT,
@@ -343,26 +320,15 @@ def stage2_finetune():
         config={
             "stage": 2, "model": MODEL_NAME, "lr": STAGE2_LR, "epochs": NUM_EPOCHS,
             "lora_rank": LORA_RANK, "lora_alpha": LORA_ALPHA, "lora_targets": LORA_TARGETS,
-            "grad_checkpointing": USE_GRADIENT_CHECKPOINTING_STAGE2,
         },
     )
 
-    # Load base, swap attention, load Stage 1 weights, freeze base
     model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=DTYPE).to(DEVICE)
     model = swap_attention(model)
     model = load_trainable(model, STAGE1_CKPT)
     model = freeze_base_keep_lizard(model)
+    upcast_lizard_params_to_fp32(model)
 
-    # ============================================================
-    # Upcast Lizard params to fp32 BEFORE peft wraps the model.
-    # peft's get_peft_model preserves parameter dtypes for non-LoRA
-    # params; doing the upcast here propagates through wrapping.
-    # See upcast_lizard_params_to_fp32 docstring for rationale.
-    # ============================================================
-    upcast_count = upcast_lizard_params_to_fp32(model)
-    print(f"  upcast {upcast_count} Lizard parameters to fp32")
-
-    # Attach LoRA to q/k/v of every attention layer
     lora_cfg = LoraConfig(
         r=LORA_RANK,
         lora_alpha=LORA_ALPHA,
@@ -373,241 +339,88 @@ def stage2_finetune():
     )
     model = get_peft_model(model, lora_cfg)
 
-    # peft may freeze everything except adapters; re-enable Lizard params
+    # peft freezes non-adapter params; re-enable Lizard params and re-upcast,
+    # since wrapping can reset their dtype.
     for name, p in model.named_parameters():
         if is_lizard_param(name):
             p.requires_grad = True
+    upcast_lizard_params_to_fp32(model)
 
-    # Re-run upcast after peft (peft may have re-cast Lizard params during
-    # wrapping). This is a no-op if dtypes are already fp32.
-    upcast_count_post_peft = upcast_lizard_params_to_fp32(model)
-    if upcast_count_post_peft > 0:
-        print(f"  re-upcast {upcast_count_post_peft} Lizard parameters to fp32 (after peft)")
-
-    # Gradient checkpointing — must come AFTER peft wrapping.
-    model = maybe_enable_gradient_checkpointing(
+    model = enable_gradient_checkpointing(
         model, USE_GRADIENT_CHECKPOINTING_STAGE2, "stage2"
     )
 
-    # VERIFY GC IS ACTUALLY ON
-    print(f"  model.is_gradient_checkpointing: {model.is_gradient_checkpointing}")
-    if hasattr(model, "base_model"):
-        print(f"  base_model.is_gradient_checkpointing: {model.base_model.is_gradient_checkpointing}")
-        if hasattr(model.base_model, "model"):
-            inner = model.base_model.model
-            print(f"  base_model.model.is_gradient_checkpointing: {inner.is_gradient_checkpointing}")
-
     n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
     n_total = sum(p.numel() for p in model.parameters())
-    print(f"  trainable: {n_train:,}  /  total: {n_total:,}  ({100 * n_train / n_total:.3f}%)")
+    logger.info("trainable %d / %d (%.3f%%)", n_train, n_total, 100 * n_train / n_total)
 
-    # Data
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"
     loader = build_dataloader(tokenizer)
 
-    # Optimizer + scheduler
     trainable = [p for p in model.parameters() if p.requires_grad]
     optim = torch.optim.AdamW(trainable, lr=STAGE2_LR, betas=ADAM_BETAS, eps=ADAM_EPS)
-
-    # ============================================================
-    # DTYPE CHECK — confirm fp32 upcast took effect
-    # ============================================================
-    print("\n=== DTYPE CHECK (Lizard params + LoRA params) ===")
-    attn = model.base_model.model.model.layers[0].self_attn
-    print(f"  alpha_blend:     dtype = {attn.alpha_blend.dtype}, value = {attn.alpha_blend.item():.6f}")
-    print(f"  meta_tokens:     dtype = {attn.meta_tokens.dtype}, value = {attn.meta_tokens.detach().cpu().tolist()}")
-    print(f"  phi_q.weight:    dtype = {attn.phi_q.weight.dtype}")
-    print(f"  phi_k.weight:    dtype = {attn.phi_k.weight.dtype}")
-    print(f"  W_gamma.weight:  dtype = {attn.W_gamma.weight.dtype}")
-    for name, p in model.named_parameters():
-        if "lora_A" in name and "layers.0" in name:
-            print(f"  {name}: dtype = {p.dtype}  (for comparison)")
-            break
-
-    # ============================================================
-    # DIAGNOSTIC: list the params in the optimizer
-    # ============================================================
-    print("\n=== Parameters in optimizer (count summary) ===")
-    lora_count = 0
-    lizard_count = 0
-    for name, p in model.named_parameters():
-        if p.requires_grad:
-            if 'lora' in name.lower():
-                lora_count += 1
-            elif any(k in name for k in LIZARD_PARAM_KEYS):
-                lizard_count += 1
-    print(f"  LoRA params: {lora_count}")
-    print(f"  Lizard params: {lizard_count}")
-    print(f"  Total trainable params: {sum(p.numel() for p in trainable):,}")
-
-    # ============================================================
-    # DIAGNOSTIC: parameter identity check (pre-training)
-    # ============================================================
-    print("\n=== Parameter identity check (BEFORE training) ===")
-    tracked_params = {}
-    for name, p in model.named_parameters():
-        if any(k in name for k in ('alpha_blend', 'meta_tokens')) and 'layers.0' in name:
-            in_optim = any(
-                p is op
-                for group in optim.param_groups
-                for op in group['params']
-            )
-            tracked_params[name] = (id(p), p.detach().clone(), p.requires_grad)
-            value_str = (f"{p.item():.6f}" if p.numel() == 1
-                         else f"{p.detach().cpu().tolist()}")
-            print(f"  {name}")
-            print(f"    id(p)         = {id(p)}")
-            print(f"    dtype         = {p.dtype}")
-            print(f"    value         = {value_str}")
-            print(f"    requires_grad = {p.requires_grad}")
-            print(f"    in optimizer? = {in_optim}")
-
     total_steps = (len(loader) * NUM_EPOCHS) // GRAD_ACCUM
     warmup_steps = int(total_steps * WARMUP_RATIO)
     sched = get_cosine_schedule_with_warmup(optim, warmup_steps, total_steps)
-    print(f"\n  total optimizer steps: {total_steps}  (warmup: {warmup_steps})")
+    logger.info("optimizer steps: %d (warmup %d)", total_steps, warmup_steps)
 
     step = 0
     optim.zero_grad()
 
-    try:
-        for epoch in range(NUM_EPOCHS):
-            for batch_idx, batch in enumerate(loader):
-                input_ids = batch["input_ids"].to(DEVICE)
-                labels = batch["labels"].to(DEVICE)
+    for epoch in range(NUM_EPOCHS):
+        for batch_idx, batch in enumerate(loader):
+            input_ids = batch["input_ids"].to(DEVICE)
+            labels = batch["labels"].to(DEVICE)
 
-                out = model(input_ids=input_ids, labels=labels, use_cache=False)
-                loss = out.loss
+            out = model(input_ids=input_ids, labels=labels, use_cache=False)
+            (out.loss / GRAD_ACCUM).backward()
 
-                (loss / GRAD_ACCUM).backward()
+            if (batch_idx + 1) % GRAD_ACCUM == 0:
+                torch.nn.utils.clip_grad_norm_(trainable, GRAD_CLIP)
+                optim.step()
+                sched.step()
+                optim.zero_grad()
+                step += 1
 
-                # === Grads RIGHT AFTER backward (before optim.step or zero_grad) ===
-                if step == 0 and batch_idx == 0:
-                    print(f"\n=== Grads right after first backward (BEFORE optim.step or zero_grad) ===")
-                    for name, p in model.named_parameters():
-                        if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
-                            g = p.grad
-                            if g is None:
-                                print(f"  {name}: grad=None")
-                            else:
-                                print(f"  {name}: "
-                                      f"grad mean={g.abs().mean().item():.4e}, "
-                                      f"grad dtype={g.dtype}, "
-                                      f"param dtype={p.dtype}")
-
-                if (batch_idx + 1) % GRAD_ACCUM == 0:
-                    torch.nn.utils.clip_grad_norm_(trainable, GRAD_CLIP)
-
-                    if step == 0 and batch_idx == 0:
-                        print("\n=== Grads AFTER clip_grad_norm (before optim.step) ===")
-                        for name, p in model.named_parameters():
-                            if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
-                                g = p.grad
-                                if g is None:
-                                    print(f"  {name}: grad=None")
-                                else:
-                                    print(f"  {name}: grad mean={g.abs().mean().item():.4e}, dtype={g.dtype}")
-
-                    # Capture values BEFORE optim.step for delta comparison
-                    pre_step_values = {}
-                    if step == 0:
-                        for name, p in model.named_parameters():
-                            if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
-                                pre_step_values[name] = p.detach().clone()
-
-                    optim.step()
-
-                    # Values AFTER optim.step — should show non-zero delta now that dtype is fp32
-                    if step == 0:
-                        print("\n=== Values AFTER optim.step (BEFORE zero_grad) ===")
-                        for name, p in model.named_parameters():
-                            if any(k in name for k in ('meta_tokens', 'alpha_blend')) and 'layers.0' in name:
-                                value_str = (f"{p.item():.6f}" if p.numel() == 1
-                                             else f"{p.detach().cpu().tolist()}")
-                                delta = (p.detach() - pre_step_values[name].to(p.device)).abs().max().item()
-                                dtype_eps = {
-                                    torch.float32: 1.19e-7,
-                                    torch.bfloat16: 7.81e-3,
-                                    torch.float16: 9.77e-4,
-                                }.get(p.dtype, float('nan'))
-                                print(f"  {name}:")
-                                print(f"    value      = {value_str}")
-                                print(f"    dtype      = {p.dtype}")
-                                print(f"    delta      = {delta:.4e}")
-                                print(f"    dtype eps  = {dtype_eps:.2e}")
-                                if delta == 0.0 and p.grad is not None and p.grad.abs().mean().item() > 0:
-                                    print(f"    !! delta=0 with nonzero grad → likely dtype quantization")
-                                elif delta > 0:
-                                    print(f"    ✓ parameter updated successfully")
-
-                    sched.step()
-                    optim.zero_grad()
-                    step += 1
-
-                    if step % LOG_EVERY == 0:
-                        lr = sched.get_last_lr()[0]
-                        print(f"[stage2] epoch {epoch} step {step}/{total_steps} loss {loss.item():.4f} lr {lr:.2e}")
-                        wandb.log({"stage2/loss": loss.item(), "stage2/lr": lr, "stage2/step": step})
-    except KeyboardInterrupt:
-        print(f"\n!! Interrupted at step {step}. Running diagnostics...")
-
-    # ============================================================
-    # DIAGNOSTIC: parameter identity check (POST training)
-    # ============================================================
-    print("\n=== Parameter identity check (AFTER training) ===")
-    for name, p in model.named_parameters():
-        if name in tracked_params:
-            orig_id, orig_val, _ = tracked_params[name]
-            same_object = id(p) == orig_id
-            value_str = (f"{p.item():.6f}" if p.numel() == 1
-                         else f"{p.detach().cpu().tolist()}")
-            diff = (p.detach() - orig_val.to(p.device)).abs().max().item()
-            in_optim = any(
-                p is op
-                for group in optim.param_groups
-                for op in group['params']
-            )
-            print(f"  {name}")
-            print(f"    dtype                          = {p.dtype}")
-            print(f"    same object as before training = {same_object}")
-            print(f"    current value                  = {value_str}")
-            print(f"    max abs change from init       = {diff:.2e}")
-            print(f"    still in optimizer?            = {in_optim}")
-
-    print("\n=== Lizard params BEFORE merge_and_unload ===")
-    for i in [0, 5, 10, 15]:
-        attn = model.base_model.model.model.layers[i].self_attn
-        print(f"Layer {i}: alpha={attn.alpha_blend.item():.6f}, "
-              f"meta={[f'{m:.4f}' for m in attn.meta_tokens.detach().cpu()]}")
+                if step % LOG_EVERY == 0:
+                    lr = sched.get_last_lr()[0]
+                    logger.info(
+                        "[stage2] epoch %d step %d/%d loss %.4f lr %.2e",
+                        epoch, step, total_steps, out.loss.item(), lr,
+                    )
+                    wandb.log({"stage2/loss": out.loss.item(), "stage2/lr": lr, "stage2/step": step})
 
     model = model.merge_and_unload()
-
-    print("\n=== Lizard params AFTER merge_and_unload ===")
-    for i in [0, 5, 10, 15]:
-        attn = model.model.layers[i].self_attn
-        print(f"Layer {i}: alpha={attn.alpha_blend.item():.6f}, "
-              f"meta={[f'{m:.4f}' for m in attn.meta_tokens.detach().cpu()]}")
+    log_lizard_values(model, "Stage 2 final Lizard values (after merge)")
 
     full_sd = {n: p.detach().cpu() for n, p in model.named_parameters()}
     torch.save(full_sd, STAGE2_CKPT)
-    print(f"  Stage 2 full state dict -> {STAGE2_CKPT}")
-    print(f"  To reload: load base Llama-3.2-1B, call swap_attention(m), then m.load_state_dict(torch.load(STAGE2_CKPT), strict=False)")
+    logger.info("stage 2 state dict -> %s", STAGE2_CKPT)
+    logger.info(
+        "reload: load base Llama-3.2-1B, swap_attention(m), "
+        "m.load_state_dict(torch.load(STAGE2_CKPT), strict=False)"
+    )
     wandb.finish()
 
 
-# ============================================================
-# MAIN
-# ============================================================
+# ------------------------------------------------------------------
+# Entry point
+# ------------------------------------------------------------------
 def main():
-    print(f"PYTORCH_CUDA_ALLOC_CONF = {os.environ.get('PYTORCH_CUDA_ALLOC_CONF', 'NOT SET')}")
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+        datefmt="%H:%M:%S",
+    )
+    logger.info("PYTORCH_CUDA_ALLOC_CONF = %s", os.environ.get("PYTORCH_CUDA_ALLOC_CONF"))
 
     torch.manual_seed(SEED)
     CKPT_DIR.mkdir(parents=True, exist_ok=True)
     stage1_distill()
     stage2_finetune()
-    print("Done.")
+    logger.info("done")
 
 
 if __name__ == "__main__":
