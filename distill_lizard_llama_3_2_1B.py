@@ -1,17 +1,5 @@
 """
 Lizard linearization for Llama-3.2-1B (arXiv:2507.09025).
-
-Two training stages:
-  Stage 1  MSE distillation of softmax attention outputs into Lizard attention,
-           trained per-layer on the teacher's own (input, output) pairs.
-  Stage 2  LoRA + Lizard-parameter fine-tune with language-modeling loss.
-
-Mixed precision: the base model runs in bf16; the small Lizard parameters
-(meta_tokens, alpha_blend, phi_q, phi_k, W_gamma) are upcast to fp32 because
-AdamW updates on them (~5e-4) are smaller than the bf16 step size near unit
-magnitude (~7.8e-3) and would otherwise be quantized to no-ops.
-
-Requires a CUDA GPU with >= 16 GB VRAM.
 """
 
 import os
