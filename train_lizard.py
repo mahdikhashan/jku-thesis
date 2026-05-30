@@ -157,64 +157,74 @@ def prepare_alpaca_packed_dataloader(tokenizer, seq_len, batch_size):
     print(f"Total packed sequences: {len(packed_dataset)}")
     return DataLoader(packed_dataset, batch_size=batch_size, shuffle=True)
 
-# ==========================================
-# 3. Training Stages
-# ==========================================
-def train_stage_1(teacher, student, dataloader, optimizer, device):
-    """Stage 1: Attention Distillation (MSE Loss on Hidden States)"""
+
+def train_stage_1(teacher, student, dataloader, optimizer, device, grad_accum_steps=4):
+    """Stage 1: Attention Distillation (MSE Loss on Hidden States) with Gradient Accumulation"""
     teacher.eval()
     student.train()
     total_loss = 0
-    
+
     pbar = tqdm(dataloader, desc="Stage 1: Distillation")
-    for batch in pbar:
+    optimizer.zero_grad()
+
+    for step, batch in enumerate(pbar):
         input_ids = batch['input_ids'].to(device)
-        
+
         with torch.no_grad():
             teacher_outputs = teacher(input_ids, output_hidden_states=True, return_dict=True)
-            
+
         student_outputs = student(input_ids, output_hidden_states=True, return_dict=True)
-        
+
         loss = 0.0
         for l in range(1, len(teacher_outputs.hidden_states)):
             y_teacher = teacher_outputs.hidden_states[l]
             y_student = student_outputs.hidden_states[l]
             loss += F.mse_loss(y_student, y_teacher)
-            
+
         loss = loss / (len(teacher_outputs.hidden_states) - 1)
-        
-        optimizer.zero_grad()
+
+        # Scale loss according to accumulation steps
+        loss = loss / grad_accum_steps
         loss.backward()
-        optimizer.step()
-        
-        total_loss += loss.item()
-        pbar.set_postfix({'mse_loss': f"{loss.item():.4f}"})
-        
+
+        if (step + 1) % grad_accum_steps == 0 or (step + 1) == len(dataloader):
+            optimizer.step()
+            optimizer.zero_grad()
+
+        total_loss += loss.item() * grad_accum_steps
+        pbar.set_postfix({'mse_loss': f"{(loss.item() * grad_accum_steps):.4f}"})
+
     return total_loss / len(dataloader)
 
-def train_stage_2(peft_model, dataloader, optimizer, scheduler, device):
-    """Stage 2: Causal Language Modeling via LoRA"""
+
+def train_stage_2(peft_model, dataloader, optimizer, scheduler, device, grad_accum_steps=4):
+    """Stage 2: Causal Language Modeling via LoRA with Gradient Accumulation"""
     peft_model.train()
     total_loss = 0
-    
+
     pbar = tqdm(dataloader, desc="Stage 2: LoRA Alignment")
-    for batch in pbar:
+    optimizer.zero_grad()
+
+    for step, batch in enumerate(pbar):
         input_ids = batch['input_ids'].to(device)
         labels = batch['labels'].to(device)
-        
+
         outputs = peft_model(input_ids=input_ids, labels=labels)
         loss = outputs.loss
-        
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        scheduler.step()
-        
-        total_loss += loss.item()
-        pbar.set_postfix({'lm_loss': f"{loss.item():.4f}"})
-        
-    return total_loss / len(dataloader)
 
+        # Scale loss according to accumulation steps
+        loss = loss / grad_accum_steps
+        loss.backward()
+
+        if (step + 1) % grad_accum_steps == 0 or (step + 1) == len(dataloader):
+            optimizer.step()
+            scheduler.step()
+            optimizer.zero_grad()
+
+        total_loss += loss.item() * grad_accum_steps
+        pbar.set_postfix({'lm_loss': f"{(loss.item() * grad_accum_steps):.4f}"})
+
+    return total_loss / len(dataloader)
 # ==========================================
 # 4. Main Execution
 # ==========================================
@@ -223,8 +233,11 @@ def main():
     model_id = "meta-llama/Llama-3.2-1B"
     stage_1_save_path = "./lizard-llama-3.2-1b-stage1"
     stage_2_save_path = "./lizard-llama-3.2-1b-alpaca-final"
+
+    # --- VRAM Optimization Config ---
     seq_len = 2048
-    batch_size = 4
+    batch_size = 1  # Drop from 4 to 1 to reduce activation sizes
+    grad_accum_steps = 4  # 1 x 4 = Effective batch size of 4
 
     print("Loading tokenizer and models...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
@@ -237,6 +250,10 @@ def main():
     print("Injecting Lizard Attention...")
     student = replace_with_lizard(student).to(device)
 
+    student.gradient_checkpointing_enable()
+    student.config.use_cache = False  # Checkpointing is incompatible with KV-caching during training
+    student = student.to(device)
+
     dataloader = prepare_alpaca_packed_dataloader(tokenizer, seq_len, batch_size)
 
     # ==========================================
@@ -244,9 +261,7 @@ def main():
     # ==========================================
     print("\n--- Starting Stage 1: Attention Distillation ---")
     optimizer_s1 = optim.AdamW(student.parameters(), lr=3e-4)
-
-    # Train Stage 1
-    train_stage_1(teacher, student, dataloader, optimizer_s1, device)
+    train_stage_1(teacher, student, dataloader, optimizer_s1, device, grad_accum_steps)
 
     # Save Stage 1 Base Model
     print(f"\nSaving Stage 1 distilled model to {stage_1_save_path}...")
@@ -293,7 +308,7 @@ def main():
     )
 
     # Train Stage 2
-    train_stage_2(peft_student, dataloader, optimizer_s2, scheduler, device)
+    train_stage_2(peft_student, dataloader, optimizer_s2, scheduler, device, grad_accum_steps)
 
     print(f"\nTraining complete. Saving final LoRA adapters to {stage_2_save_path}...")
     peft_student.save_pretrained(stage_2_save_path)
