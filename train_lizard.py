@@ -75,9 +75,9 @@ class LizardAttention(nn.Module):
         
         # Combine
         y_lizard = (y_gate + self.alpha * y_anchor).contiguous().view(batch, seq_len, self.hidden_size)
-        
-        # Return signature expected by LlamaDecoderLayer: (output, weights, past_key_value)
-        return self.o_proj(y_lizard), None, None
+
+        # Return signature expected by this version of LlamaDecoderLayer: (output, weights)
+        return self.o_proj(y_lizard), None
 
 
 def replace_with_lizard(model):
