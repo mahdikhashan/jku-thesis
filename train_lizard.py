@@ -1,3 +1,4 @@
+import gc
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -50,7 +51,7 @@ class LizardAttention(nn.Module):
         
         q_phi, k_phi = F.silu(q), F.silu(k)
         y_gate = torch.zeros_like(q)
-        S = torch.zeros((batch, self.num_heads, self.head_dim, self.head_dim), device=hidden_states.device)
+        S = torch.zeros((batch, self.num_heads, self.head_dim, self.head_dim), device=hidden_states.device, dtype=hidden_states.dtype)
         
         for i in range(seq_len):
             g_i = gates[:, i].view(batch, 1, 1, 1)
@@ -78,16 +79,23 @@ class LizardAttention(nn.Module):
         # Return signature expected by LlamaDecoderLayer: (output, weights, past_key_value)
         return self.o_proj(y_lizard), None, None
 
+
 def replace_with_lizard(model):
     """Replaces all Llama attention layers with Lizard Attention."""
     config = model.config
+    # Detect the model's loaded precision (bfloat16 in this case)
+    target_dtype = next(model.parameters()).dtype
+
     for layer in model.model.layers:
-        layer.self_attn = LizardAttention(
+        new_attn = LizardAttention(
             hidden_size=config.hidden_size,
             num_heads=config.num_attention_heads,
             window_size=128,
             num_meta_tokens=4
         )
+        # Cast the newly initialized fp32 weights to the target dtype
+        layer.self_attn = new_attn.to(dtype=target_dtype)
+
     return model
 
 # ==========================================
@@ -213,30 +221,59 @@ def train_stage_2(peft_model, dataloader, optimizer, scheduler, device):
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_id = "meta-llama/Llama-3.2-1B"
+    stage_1_save_path = "./lizard-llama-3.2-1b-stage1"
+    stage_2_save_path = "./lizard-llama-3.2-1b-alpaca-final"
     seq_len = 2048
     batch_size = 4
-    
+
     print("Loading tokenizer and models...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-        
-    # Using bfloat16 to fit both models in VRAM efficiently
+
     teacher = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16).to(device)
     student = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16)
-    
+
     print("Injecting Lizard Attention...")
     student = replace_with_lizard(student).to(device)
-    
+
     dataloader = prepare_alpaca_packed_dataloader(tokenizer, seq_len, batch_size)
-    
-    # --- Execute Stage 1 ---
-    print("\n--- Starting Stage 1: Attention Approximation ---")
+
+    # ==========================================
+    # STAGE 1: Attention Approximation
+    # ==========================================
+    print("\n--- Starting Stage 1: Attention Distillation ---")
     optimizer_s1 = optim.AdamW(student.parameters(), lr=3e-4)
+
+    # Train Stage 1
     train_stage_1(teacher, student, dataloader, optimizer_s1, device)
-    
-    # --- Execute Stage 2 ---
+
+    # Save Stage 1 Base Model
+    print(f"\nSaving Stage 1 distilled model to {stage_1_save_path}...")
+    # Because we monkey-patched the model, we save the state_dict directly
+    # to avoid HuggingFace config conflicts on reload.
+    torch.save(student.state_dict(), f"{stage_1_save_path}_weights.pth")
+    tokenizer.save_pretrained(stage_1_save_path)
+
+    # Free up VRAM (Teacher is no longer needed for Stage 2)
+    print("Unloading Teacher model to free up VRAM...")
+    del teacher
+    torch.cuda.empty_cache()
+    gc.collect()
+
+    # ==========================================
+    # STAGE 2: LoRA Alignment
+    # ==========================================
     print("\n--- Starting Stage 2: LoRA Fine-Tuning ---")
+
+    # (Optional) If running Stage 2 in a completely separate script later,
+    # you would load it like this:
+    # student = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16)
+    # student = replace_with_lizard(student)
+    # student.load_state_dict(torch.load(f"{stage_1_save_path}_weights.pth"))
+    # student = student.to(device)
+
+    # Configure LoRA for Stage 2
     lora_config = LoraConfig(
         r=8,
         lora_alpha=16,
@@ -245,19 +282,23 @@ def main():
         bias="none",
         task_type="CAUSAL_LM"
     )
+
+    # Wrap the Stage 1 distilled student with LoRA
     peft_student = get_peft_model(student, lora_config).to(device)
     peft_student.print_trainable_parameters()
-    
+
     optimizer_s2 = optim.AdamW(peft_student.parameters(), lr=1e-4)
     scheduler = get_cosine_schedule_with_warmup(
         optimizer_s2, num_warmup_steps=100, num_training_steps=len(dataloader)
     )
-    
+
+    # Train Stage 2
     train_stage_2(peft_student, dataloader, optimizer_s2, scheduler, device)
-    
-    print("Training complete. Saving model...")
-    peft_student.save_pretrained("./lizard-llama-3.2-1b-alpaca")
-    tokenizer.save_pretrained("./lizard-llama-3.2-1b-alpaca")
+
+    print(f"\nTraining complete. Saving final LoRA adapters to {stage_2_save_path}...")
+    peft_student.save_pretrained(stage_2_save_path)
+    tokenizer.save_pretrained(stage_2_save_path)
+
 
 if __name__ == "__main__":
     main()
