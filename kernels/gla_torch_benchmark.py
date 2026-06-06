@@ -91,7 +91,7 @@ def main():
     print("-" * 62)
 
     # paper Table 3 configurations
-    configs = [(16, 2048), (16, 4096), (16, 8192), (32, 8192)]
+    configs = [(1, 2048), (1, 4096), (1, 8192), (1, 8192)]
     for B, L in configs:
         W = (torch.randn(args.d, args.F, device=dev) * 0.5)
         x_q = torch.randn(B, args.H, L, args.d, device=dev)
