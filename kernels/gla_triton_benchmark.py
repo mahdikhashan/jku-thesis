@@ -89,10 +89,42 @@ def main():
     except Exception as e:
         print(f"[skip] option2: {e}")
 
+    # FLA standard GLA — the paper's baseline (Yang & Zhang, 2024).
+    # Apples-to-apples: same hedgehog feature map phi(xW) = [exp(xW) ⊕ exp(-xW)]
+    # and same scalar gate, but the gate is passed SEPARATELY to FLA's chunked
+    # kernel (gk = log gamma, broadcast across the 2F feature dim) rather than
+    # folded into q/k. This is exactly the "standard GLA" the reparam replaces.
+    try:
+        from fla.ops.gla import chunk_gla, fused_recurrent_gla
+
+        def _phi(xW):
+            return torch.cat([torch.exp(xW), torch.exp(-xW)], dim=-1)
+
+        # Precompute feature maps once (the reparam paths also do their projection
+        # inside the timed call, so to stay fair we include phi+projection here too).
+        def _fla_chunk():
+            phi_q = _phi(x_q @ W)                         # (B,H,L,2F)
+            phi_k = _phi(x_k @ W)
+            # FLA expects (B, L, H, D); gk is the per-step log-decay, shape (B,L,H,2F)
+            q_f = phi_q.transpose(1, 2).contiguous()
+            k_f = phi_k.transpose(1, 2).contiguous()
+            v_f = v.transpose(1, 2).contiguous()
+            gk = torch.log(gamma.clamp(min=1e-12))        # (B,H,L)
+            gk = gk[..., None].expand(B, H, L, phi_q.shape[-1])
+            gk = gk.transpose(1, 2).contiguous()
+            return chunk_gla(q_f, k_f, v_f, gk)
+
+        res["fla_chunk_gla"] = timed(_fla_chunk)
+    except Exception as e:
+        print(f"[skip] fla: {e}")
+
     base = res["torch_reparam"]
-    print(f"{'impl':<22}{'ms':>10}{'vs torch':>12}")
+    print(f"{'impl':<22}{'ms':>10}{'vs torch':>12}{'vs FLA':>12}")
+    fla = res.get("fla_chunk_gla")
     for name, ms in res.items():
-        print(f"{name:<22}{ms:>10.3f}{base / ms:>11.2f}x")
+        vs_torch = f"{base / ms:.2f}x"
+        vs_fla = f"{fla / ms:.2f}x" if fla else "--"
+        print(f"{name:<22}{ms:>10.3f}{vs_torch:>12}{vs_fla:>12}")
 
 
 if __name__ == "__main__":
