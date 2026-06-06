@@ -1,8 +1,12 @@
 """
 Option 2 — Full flash-style fused linear attention (Triton).
 
-Modified for Tesla P40 (Pascal): Throttled block sizes and disabled
-software pipelining (num_stages=1) to fit within the 48KB Shared Memory limit.
+Keeps:
+  - fp32-cast-for-exp (Tensor-Core-safe: exp computed in fp32, cast back)
+  - autotune configs with num_stages tuning
+Adds:
+  - power-of-two BLOCK_F / BLOCK_V with masking, so non-power-of-two F or Vd
+    (e.g. the --check's Vd=24) compile. tl.arange REQUIRES a power-of-two bound.
 """
 
 import argparse
@@ -13,7 +17,6 @@ import triton.language as tl
 
 @triton.autotune(
     configs=[
-        # Restored larger blocks for the A10; using num_stages=1 or 2 to stay safe
         triton.Config({"BLOCK_M": 64, "BLOCK_N": 64}, num_warps=4, num_stages=2),
         triton.Config({"BLOCK_M": 128, "BLOCK_N": 64}, num_warps=4, num_stages=2),
         triton.Config({"BLOCK_M": 64, "BLOCK_N": 128}, num_warps=8, num_stages=1),
@@ -29,13 +32,17 @@ def _flash_linear_kernel(
         stride_ob, stride_ot, stride_ov,
         L, F: tl.constexpr, Vd: tl.constexpr,
         BLOCK_M: tl.constexpr, BLOCK_N: tl.constexpr,
+        BLOCK_F: tl.constexpr, BLOCK_V: tl.constexpr,
 ):
     pid_bh = tl.program_id(0)
     pid_m = tl.program_id(1)
 
     offs_m = pid_m * BLOCK_M + tl.arange(0, BLOCK_M)
-    offs_f = tl.arange(0, F)
-    offs_v = tl.arange(0, Vd)
+    # BLOCK_F / BLOCK_V are powers of two >= F / Vd; mask the tail lanes.
+    offs_f = tl.arange(0, BLOCK_F)
+    offs_v = tl.arange(0, BLOCK_V)
+    f_mask = offs_f < F
+    v_mask = offs_v < Vd
 
     qbase = QW + pid_bh * stride_qb
     kbase = KW + pid_bh * stride_qb
@@ -44,24 +51,23 @@ def _flash_linear_kernel(
 
     m_mask = offs_m < L
     qw = tl.load(qbase + offs_m[:, None] * stride_qt + offs_f[None, :] * stride_qf,
-                 mask=m_mask[:, None], other=0.0)
+                 mask=m_mask[:, None] & f_mask[None, :], other=0.0)
     logc_m = tl.load(cbase + offs_m * stride_ct, mask=m_mask, other=0.0)
 
-    # --- FIX: Cast to fp32 for exp, then cast back to preserve tensor core speed ---
+    # exp in fp32 for stability, cast back to input dtype to keep Tensor Cores
     qpos = tl.exp((qw + logc_m[:, None]).to(tl.float32)).to(qw.dtype)
     qneg = tl.exp((-qw + logc_m[:, None]).to(tl.float32)).to(qw.dtype)
 
-    acc = tl.zeros((BLOCK_M, Vd), dtype=tl.float32)
+    acc = tl.zeros((BLOCK_M, BLOCK_V), dtype=tl.float32)
 
     hi = (pid_m + 1) * BLOCK_M
     for start_n in range(0, hi, BLOCK_N):
         offs_n = start_n + tl.arange(0, BLOCK_N)
         n_mask = offs_n < L
         kw = tl.load(kbase + offs_n[:, None] * stride_qt + offs_f[None, :] * stride_qf,
-                     mask=n_mask[:, None], other=0.0)
+                     mask=n_mask[:, None] & f_mask[None, :], other=0.0)
         logc_n = tl.load(cbase + offs_n * stride_ct, mask=n_mask, other=0.0)
 
-        # --- FIX: Cast to fp32 for exp, then cast back ---
         kpos = tl.exp((kw - logc_n[:, None]).to(tl.float32)).to(kw.dtype)
         kneg = tl.exp((-kw - logc_n[:, None]).to(tl.float32)).to(kw.dtype)
 
@@ -71,12 +77,16 @@ def _flash_linear_kernel(
         score = tl.where(causal & n_mask[None, :], score, 0.0)
 
         vblk = tl.load(vbase + offs_n[:, None] * stride_vt + offs_v[None, :] * stride_vv,
-                       mask=n_mask[:, None], other=0.0)
+                       mask=n_mask[:, None] & v_mask[None, :], other=0.0)
         acc += tl.dot(score.to(vblk.dtype), vblk)
 
     obase = OUT + pid_bh * stride_ob
     tl.store(obase + offs_m[:, None] * stride_ot + offs_v[None, :] * stride_ov,
-             acc, mask=m_mask[:, None])
+             acc, mask=m_mask[:, None] & v_mask[None, :])
+
+
+def _next_pow2(n):
+    return 1 << (n - 1).bit_length()
 
 
 def gla_flash_triton(x_q, x_k, v, gamma, W):
@@ -98,7 +108,7 @@ def gla_flash_triton(x_q, x_k, v, gamma, W):
         logC.stride(0), logC.stride(1),
         vv.stride(0), vv.stride(1), vv.stride(2),
         out.stride(0), out.stride(1), out.stride(2),
-        L, F=F, Vd=Vd,
+        L, F=F, Vd=Vd, BLOCK_F=_next_pow2(F), BLOCK_V=_next_pow2(Vd),
     )
     return out.view(B, H, L, Vd).to(v.dtype)
 
