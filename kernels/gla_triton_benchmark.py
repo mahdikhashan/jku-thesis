@@ -20,12 +20,26 @@ import argparse
 import time
 import torch
 
-# hack to run fla
-# Fake the micro-scaling float8 attribute to satisfy FLA's type checks
+# ---
+# hack to fix issue: [skip] fla: 'bitnet' is already used by a Transformers config, pick another name.
+from transformers import AutoConfig
+
+# 1. Bypass the float8 type verification
 if not hasattr(torch, "float8_e8m0fnu"):
     torch.float8_e8m0fnu = torch.float32
 
+# 2. Prevent HuggingFace from throwing a fit over duplicate 'bitnet' keys
+_orig_register = AutoConfig.register
+def safe_register(model_type, config, *args, **kwargs):
+    try:
+        return _orig_register(model_type, config, *args, **kwargs)
+    except ValueError as e:
+        if "already used" in str(e):
+            return  # Silently skip the collision and keep moving
+        raise e
+AutoConfig.register = safe_register
 # import fla  # Keep your existing imports below this
+# ---
 
 def _torch_reparam(x_q, x_k, v, gamma, W):
     L = x_q.shape[2]
