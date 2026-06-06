@@ -13,23 +13,22 @@ import triton.language as tl
 
 @triton.autotune(
     configs=[
-        # Force num_stages=1 and use micro-blocks to avoid squeezing Pascal's 48KB SRAM
-        triton.Config({"BLOCK_M": 32, "BLOCK_N": 32}, num_warps=4, num_stages=1),
-        triton.Config({"BLOCK_M": 32, "BLOCK_N": 16}, num_warps=4, num_stages=1),
-        triton.Config({"BLOCK_M": 16, "BLOCK_N": 32}, num_warps=4, num_stages=1),
-        triton.Config({"BLOCK_M": 16, "BLOCK_N": 16}, num_warps=2, num_stages=1),
+        # Restored larger blocks for the A10; using num_stages=1 or 2 to stay safe
+        triton.Config({"BLOCK_M": 64, "BLOCK_N": 64}, num_warps=4, num_stages=2),
+        triton.Config({"BLOCK_M": 128, "BLOCK_N": 64}, num_warps=4, num_stages=2),
+        triton.Config({"BLOCK_M": 64, "BLOCK_N": 128}, num_warps=8, num_stages=1),
     ],
     key=["L", "F", "Vd"],
 )
 @triton.jit
 def _flash_linear_kernel(
-    QW, KW, LOGC, V, OUT,
-    stride_qb, stride_qt, stride_qf,
-    stride_cb, stride_ct,
-    stride_vb, stride_vt, stride_vv,
-    stride_ob, stride_ot, stride_ov,
-    L, F: tl.constexpr, Vd: tl.constexpr,
-    BLOCK_M: tl.constexpr, BLOCK_N: tl.constexpr,
+        QW, KW, LOGC, V, OUT,
+        stride_qb, stride_qt, stride_qf,
+        stride_cb, stride_ct,
+        stride_vb, stride_vt, stride_vv,
+        stride_ob, stride_ot, stride_ov,
+        L, F: tl.constexpr, Vd: tl.constexpr,
+        BLOCK_M: tl.constexpr, BLOCK_N: tl.constexpr,
 ):
     pid_bh = tl.program_id(0)
     pid_m = tl.program_id(1)
@@ -47,12 +46,13 @@ def _flash_linear_kernel(
     qw = tl.load(qbase + offs_m[:, None] * stride_qt + offs_f[None, :] * stride_qf,
                  mask=m_mask[:, None], other=0.0)
     logc_m = tl.load(cbase + offs_m * stride_ct, mask=m_mask, other=0.0)
-    qpos = tl.exp(qw + logc_m[:, None])
-    qneg = tl.exp(-qw + logc_m[:, None])
+
+    # --- FIX: Cast to fp32 for exp, then cast back to preserve tensor core speed ---
+    qpos = tl.exp((qw + logc_m[:, None]).to(tl.float32)).to(qw.dtype)
+    qneg = tl.exp((-qw + logc_m[:, None]).to(tl.float32)).to(qw.dtype)
 
     acc = tl.zeros((BLOCK_M, Vd), dtype=tl.float32)
 
-    # last key index this query block can attend to
     hi = (pid_m + 1) * BLOCK_M
     for start_n in range(0, hi, BLOCK_N):
         offs_n = start_n + tl.arange(0, BLOCK_N)
@@ -60,14 +60,13 @@ def _flash_linear_kernel(
         kw = tl.load(kbase + offs_n[:, None] * stride_qt + offs_f[None, :] * stride_qf,
                      mask=n_mask[:, None], other=0.0)
         logc_n = tl.load(cbase + offs_n * stride_ct, mask=n_mask, other=0.0)
-        kpos = tl.exp(kw - logc_n[:, None])
-        kneg = tl.exp(-kw - logc_n[:, None])
+
+        # --- FIX: Cast to fp32 for exp, then cast back ---
+        kpos = tl.exp((kw - logc_n[:, None]).to(tl.float32)).to(kw.dtype)
+        kneg = tl.exp((-kw - logc_n[:, None]).to(tl.float32)).to(kw.dtype)
 
         score = tl.dot(qpos, tl.trans(kpos)) + tl.dot(qneg, tl.trans(kneg))
 
-        # causal mask only needed where blocks overlap the diagonal; applying
-        # it unconditionally (key index <= query index) is correct for all
-        # streamed blocks and cheap.
         causal = offs_m[:, None] >= offs_n[None, :]
         score = tl.where(causal & n_mask[None, :], score, 0.0)
 
