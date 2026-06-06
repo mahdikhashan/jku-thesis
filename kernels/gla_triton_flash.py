@@ -1,28 +1,8 @@
 """
 Option 2 — Full flash-style fused linear attention (Triton).
 
-Computes Y = (tril(Q~ K~^T)) V in a single kernel without ever materializing
-the L x L score matrix, transcribing the block decomposition verified in
-gla_flash_prototype.py.
-
-Per program (one query block per (bh, block)):
-  - load QW block, logC block; form Q~ halves on-chip
-  - stream key/value blocks j <= i:
-        off-diagonal (j < i): dense    O += (Q~ K~_j^T) V_j
-        diagonal     (j = i): masked   O += (tril(Q~ K~_i^T)) V_i
-  - no running max / denominator: linear attention sums plainly over key blocks
-
-This fuses the entire pipeline (reparam + scores + scores@V) and keeps the
-score blocks in SRAM, so memory traffic is O(L) in activations rather than
-O(L^2). This is the highest-performance form and the most likely to beat the
-unfused cuBLAS path at long L — but also the one most sensitive to block-size
-tuning and the hardest to get right.
-
-NOT RUN ON GPU IN AUTHORING. Validate with `python gla_triton_flash.py --check`
-on your CUDA GPU before trusting it; it compares against the CPU reference.
-After --check passes, autotune BLOCK_M / BLOCK_N for your GPU.
-
-Assumes F <= 128 and Vd <= 128 loaded whole (Llama-3.2-1B: F=128, Vd=64).
+Modified for Tesla P40 (Pascal): Throttled block sizes and disabled
+software pipelining (num_stages=1) to fit within the 48KB Shared Memory limit.
 """
 
 import argparse
@@ -33,10 +13,11 @@ import triton.language as tl
 
 @triton.autotune(
     configs=[
-        triton.Config({"BLOCK_M": 64, "BLOCK_N": 64}, num_warps=4),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 64}, num_warps=4),
-        triton.Config({"BLOCK_M": 64, "BLOCK_N": 128}, num_warps=8),
-        triton.Config({"BLOCK_M": 128, "BLOCK_N": 128}, num_warps=8),
+        # Force num_stages=1 and use micro-blocks to avoid squeezing Pascal's 48KB SRAM
+        triton.Config({"BLOCK_M": 32, "BLOCK_N": 32}, num_warps=4, num_stages=1),
+        triton.Config({"BLOCK_M": 32, "BLOCK_N": 16}, num_warps=4, num_stages=1),
+        triton.Config({"BLOCK_M": 16, "BLOCK_N": 32}, num_warps=4, num_stages=1),
+        triton.Config({"BLOCK_M": 16, "BLOCK_N": 16}, num_warps=2, num_stages=1),
     ],
     key=["L", "F", "Vd"],
 )
