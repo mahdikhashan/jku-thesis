@@ -20,6 +20,12 @@ import argparse
 import time
 import torch
 
+# hack to run fla
+# Fake the micro-scaling float8 attribute to satisfy FLA's type checks
+if not hasattr(torch, "float8_e8m0fnu"):
+    torch.float8_e8m0fnu = torch.float32
+
+# import fla  # Keep your existing imports below this
 
 def _torch_reparam(x_q, x_k, v, gamma, W):
     L = x_q.shape[2]
