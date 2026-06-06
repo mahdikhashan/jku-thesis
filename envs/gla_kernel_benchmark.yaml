@@ -1,0 +1,39 @@
+name: gla-bench
+# Environment for the GLA kernel speed comparison
+# (gla_reference.py, gla_lizard_reparam.py, gla_flash_prototype.py,
+#  gla_triton_fused_scores.py, gla_triton_flash.py, bench_gla_triton.py,
+#  bench_lizard_table3.py)
+#
+# Triton ships inside the Linux pytorch-cuda wheels — no separate triton pin
+# needed. FLA (flash-linear-attention) is installed via pip.
+#
+# Create:   conda env create -f environment_gla_bench.yaml
+# Activate: conda activate gla-bench
+# Validate: python gla_lizard_reparam.py          # CPU, no GPU needed
+#           python gla_triton_flash.py --check     # needs CUDA GPU
+#           python bench_gla_triton.py --L 2048    # needs CUDA GPU
+#
+# If you already have your distill_lizard_llama_3_2_1B env working with FLA,
+# you do NOT need this — just run the tests there. This file is for a clean,
+# reproducible setup (e.g. thesis appendix).
+
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  # CUDA-enabled PyTorch (bundles Triton on Linux). Pin the CUDA your driver
+  # supports; 12.1 is widely compatible with L4 / A40.
+  - pytorch=2.4.*
+  - pytorch-cuda=12.1
+  - numpy
+  - pip
+  - pip:
+      # flash-linear-attention provides fla.ops.gla (chunk_gla,
+      # fused_recurrent_gla) — the paper's baseline kernel.
+      - flash-linear-attention==0.1.2
+      # triton is included with the pytorch-cuda wheels above; uncomment and
+      # pin only if your FLA version demands a specific triton release:
+      # - triton==2.3.1
