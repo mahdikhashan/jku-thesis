@@ -80,11 +80,12 @@ def main():
     res = {}
     res["torch_reparam"] = timed(_torch_reparam, x_q, x_k, v, gamma, W)
 
-    try:
-        from gla_triton_fused_scores import gla_fused_scores
-        res["triton_fused_scores"] = timed(gla_fused_scores, x_q, x_k, v, gamma, W)
-    except Exception as e:
-        print(f"[skip] option1: {e}")
+    # disable to progress further
+    # try:
+    #     from gla_triton_fused_scores import gla_fused_scores
+    #     res["triton_fused_scores"] = timed(gla_fused_scores, x_q, x_k, v, gamma, W)
+    # except Exception as e:
+    #     print(f"[skip] option1: {e}")
 
     try:
         from gla_triton_flash import gla_flash_triton
