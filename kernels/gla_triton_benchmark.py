@@ -21,6 +21,9 @@ import time
 import torch
 
 
+# hack for A10 GPU
+torch.cuda.get_device_capability = lambda device=None: (8, 0)
+
 def _torch_reparam(x_q, x_k, v, gamma, W):
     L = x_q.shape[2]
     QW = x_q @ W
