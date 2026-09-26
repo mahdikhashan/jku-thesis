@@ -3,3 +3,4 @@ TOKEN
 wandb/
 checkpoints/
 jupyter.log
+.DS_Store
