@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 900" width="760" height="900" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b7078"/>
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .title { font-size: 20px; font-weight: 700; fill: #2b2f36; text-anchor: middle; }
+      .sub { font-size: 12.5px; fill: #6b7078; text-anchor: middle; }
+      .gray { fill: #eceef1; stroke: #8a8f98; stroke-width: 1.2; }
+      .plain { fill: #ffffff; stroke: #8a8f98; stroke-width: 1.2; }
+      .blue { fill: #dbe8f7; stroke: #1f5fae; stroke-width: 1.4; }
+      .panel { fill: #f3f7fc; stroke: #1f5fae; stroke-width: 1.5; }
+      .label { font-size: 13px; fill: #2b2f36; text-anchor: middle; }
+      .bold { font-size: 12.5px; font-weight: 700; fill: #2b2f36; text-anchor: middle; }
+      .code { font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace; font-size: 12px; fill: #2b2f36; text-anchor: middle; }
+      .small { font-size: 10.5px; fill: #6b7078; text-anchor: middle; }
+      .ptitle { font-size: 14px; font-weight: 700; fill: #1f5fae; }
+      .psub { font-size: 11px; fill: #6b7078; }
+      .note { font-size: 11px; fill: #6b7078; text-anchor: middle; }
+      .legend { font-size: 12px; fill: #2b2f36; }
+      .line { fill: none; stroke: #6b7078; stroke-width: 1.3; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="760" height="900"/>
+
+  <text class="title" x="380" y="40">Lizard attention layer</text>
+  <text class="sub" x="380" y="62">Replaces every LlamaAttention layer · no RoPE · no KV cache</text>
+
+  <!-- input -->
+  <rect class="gray" x="290" y="86" width="180" height="40" rx="8"/>
+  <text class="label" x="380" y="111">hidden states x</text>
+
+  <!-- projections -->
+  <path class="line" d="M380 126 V138 M265 138 H495"/>
+  <path class="line" d="M265 138 V153" marker-end="url(#arrow)"/>
+  <path class="line" d="M380 138 V153" marker-end="url(#arrow)"/>
+  <path class="line" d="M495 138 V153" marker-end="url(#arrow)"/>
+
+  <rect class="gray" x="215" y="154" width="100" height="40" rx="8"/>
+  <rect class="gray" x="330" y="154" width="100" height="40" rx="8"/>
+  <rect class="gray" x="445" y="154" width="100" height="40" rx="8"/>
+  <text class="code" x="265" y="178">q_proj</text>
+  <text class="code" x="380" y="178">k_proj</text>
+  <text class="code" x="495" y="178">v_proj</text>
+
+  <path class="line" d="M265 194 V225" marker-end="url(#arrow)"/>
+  <path class="line" d="M380 194 V225" marker-end="url(#arrow)"/>
+  <path class="line" d="M495 194 V225" marker-end="url(#arrow)"/>
+
+  <rect class="plain" x="215" y="226" width="330" height="30" rx="6"/>
+  <text class="code" x="265" y="245">q</text>
+  <text class="code" x="380" y="245">k</text>
+  <text class="code" x="495" y="245">v</text>
+  <text class="small" x="555" y="238" style="text-anchor:start">k, v shared by head</text>
+  <text class="small" x="555" y="251" style="text-anchor:start">groups (GQA)</text>
+
+  <!-- q, k, v into both branches -->
+  <path class="line" d="M230 256 V276 H205 V298" marker-end="url(#arrow)"/>
+  <path class="line" d="M530 256 V276 H555 V298" marker-end="url(#arrow)"/>
+
+  <!-- GLA branch -->
+  <rect class="panel" x="40" y="300" width="330" height="300" rx="12"/>
+
+  <!-- x into the gate -->
+  <path class="line" d="M290 106 H24 V380 H55" marker-end="url(#arrow)"/>
+  <text class="small" x="30" y="250" style="text-anchor:start">x</text>
+
+  <text class="ptitle" x="56" y="325">GLA · gated linear attention</text>
+  <text class="psub" x="56" y="342">long-range memory over all past tokens</text>
+
+  <rect class="blue" x="56" y="360" width="92" height="40" rx="8"/>
+  <rect class="blue" x="159" y="360" width="92" height="40" rx="8"/>
+  <rect class="blue" x="262" y="360" width="92" height="40" rx="8"/>
+  <text class="code" x="102" y="377">W_gamma</text>
+  <text class="code" x="205" y="377">phi_q</text>
+  <text class="code" x="308" y="377">phi_k</text>
+  <text class="small" x="102" y="392">σ → gate γ</text>
+  <text class="small" x="205" y="392">φ(q)</text>
+  <text class="small" x="308" y="392">φ(k)</text>
+
+  <path class="line" d="M102 400 V431" marker-end="url(#arrow)"/>
+  <path class="line" d="M205 400 V431" marker-end="url(#arrow)"/>
+  <path class="line" d="M308 400 V431" marker-end="url(#arrow)"/>
+
+  <rect class="plain" x="56" y="432" width="298" height="50" rx="8"/>
+  <text class="bold" x="205" y="452">decayed scores</text>
+  <text class="code" x="205" y="471">w = φ(q)·φ(k)ᵀ ⊙ Πγ  (causal)</text>
+
+  <path class="line" d="M205 482 V511" marker-end="url(#arrow)"/>
+
+  <rect class="plain" x="56" y="512" width="298" height="44" rx="8"/>
+  <text class="code" x="205" y="538">y_GLA = (w · v) / Σ w</text>
+
+  <text class="note" x="205" y="582">φ(x) = [softmax(xW), softmax(−xW)]  (Hedgehog)</text>
+
+  <!-- AWA branch -->
+  <rect class="panel" x="390" y="300" width="330" height="300" rx="12"/>
+  <text class="ptitle" x="406" y="325">AWA · sliding-window attention</text>
+  <text class="psub" x="406" y="342">exact softmax over the last 128 tokens</text>
+
+  <rect class="gray" x="406" y="360" width="143" height="40" rx="8"/>
+  <rect class="blue" x="561" y="360" width="143" height="40" rx="8"/>
+  <text class="code" x="477.5" y="377">window = 128</text>
+  <text class="small" x="477.5" y="392">causal mask</text>
+  <text class="code" x="632.5" y="377">meta_tokens</text>
+  <text class="small" x="632.5" y="392">4 sink logits</text>
+
+  <path class="line" d="M477.5 400 V431" marker-end="url(#arrow)"/>
+  <path class="line" d="M704 380 H712 V534 H705" marker-end="url(#arrow)"/>
+
+  <rect class="plain" x="406" y="432" width="298" height="50" rx="8"/>
+  <text class="bold" x="555" y="452">windowed scores</text>
+  <text class="code" x="555" y="471">e = exp(q·kᵀ / √d), inside window</text>
+
+  <path class="line" d="M555 482 V511" marker-end="url(#arrow)"/>
+
+  <rect class="plain" x="406" y="512" width="298" height="44" rx="8"/>
+  <text class="code" x="555" y="538">y_AWA = Σ e·v / (Σ e + Σ exp(meta))</text>
+
+  <text class="note" x="555" y="582">meta tokens are attention sinks (denominator only)</text>
+
+  <!-- combine -->
+  <path class="line" d="M205 600 V690 H363" marker-end="url(#arrow)"/>
+  <path class="line" d="M555 600 V625" marker-end="url(#arrow)"/>
+
+  <rect class="blue" x="495" y="626" width="120" height="34" rx="8"/>
+  <text class="code" x="555" y="647">× alpha_blend</text>
+  <path class="line" d="M555 660 V690 H397" marker-end="url(#arrow)"/>
+
+  <circle class="plain" cx="380" cy="690" r="16"/>
+  <path d="M372 690 H388 M380 682 V698" fill="none" stroke="#2b2f36" stroke-width="1.6"/>
+  <text class="code" x="394" y="730" style="text-anchor:start">y = y_GLA + α · y_AWA</text>
+
+  <path class="line" d="M380 706 V749" marker-end="url(#arrow)"/>
+  <rect class="gray" x="320" y="750" width="120" height="38" rx="8"/>
+  <text class="code" x="380" y="773">o_proj</text>
+
+  <path class="line" d="M380 788 V811" marker-end="url(#arrow)"/>
+  <rect class="gray" x="290" y="812" width="180" height="38" rx="8"/>
+  <text class="label" x="380" y="836">attention output</text>
+
+  <!-- legend -->
+  <rect class="blue" x="150" y="868" width="14" height="14" rx="3"/>
+  <text class="legend" x="172" y="880">new Lizard parameter (trained)</text>
+  <rect class="gray" x="430" y="868" width="14" height="14" rx="3"/>
+  <text class="legend" x="452" y="880">weights copied from Llama</text>
+</svg>
