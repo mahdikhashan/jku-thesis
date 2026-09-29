@@ -28,7 +28,7 @@ STAGE2_LR = 5e-4
 LORA_RANK = 8
 LORA_ALPHA = 16
 LORA_TARGETS = ["q_proj", "k_proj", "v_proj"]
-GRADIENT_CHECKPOINTING = False
+GRADIENT_CHECKPOINTING = True
 
 OUT_DIR = Path("checkpoints")
 STAGE1_CKPT = OUT_DIR / "stage1_lizard.pt"
