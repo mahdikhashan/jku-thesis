@@ -82,8 +82,11 @@ def train(named, step_fn, loader, lr, stage):
         for i, batch in enumerate(loader):
             loss += step_fn(batch.to(C.DEVICE))
             if (i + 1) % C.GRAD_ACCUM == 0:
-                torch.nn.utils.clip_grad_norm_(params, C.GRAD_CLIP)
-                optimizer.step()
+                norm = torch.nn.utils.clip_grad_norm_(params, C.GRAD_CLIP)
+                if torch.isfinite(norm):
+                    optimizer.step()
+                else:
+                    print(stage, "skipped step: gradient is not finite")
                 scheduler.step()
                 optimizer.zero_grad()
                 log(stage, loss, named)
