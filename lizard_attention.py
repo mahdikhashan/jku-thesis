@@ -25,7 +25,7 @@ def gate_products(gamma):
 
 def gla(fq, fk, v, gamma):
     w = (fq @ fk.transpose(-1, -2)) * gate_products(gamma)[:, None]
-    return (w @ v) / w.sum(-1, keepdim=True)
+    return (w @ v) / w.sum(-1, keepdim=True).clamp_min(1e-6)
 
 
 def awa(q, k, v, meta, window):
