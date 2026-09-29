@@ -155,8 +155,11 @@ def main():
     C.OUT_DIR.mkdir(parents=True, exist_ok=True)
     wandb.init(project=C.WANDB_PROJECT)
     loader = make_loader(AutoTokenizer.from_pretrained(C.MODEL_NAME))
-    lizard_state = stage1(load_llama(), loader)
-    torch.save(lizard_state, C.STAGE1_CKPT)
+    if C.STAGE1_CKPT.exists():
+        lizard_state = torch.load(C.STAGE1_CKPT)
+    else:
+        lizard_state = stage1(load_llama(), loader)
+        torch.save(lizard_state, C.STAGE1_CKPT)
     model = stage2(load_llama(), lizard_state, loader)
     torch.save(model.state_dict(), C.STAGE2_CKPT)
     wandb.finish()
